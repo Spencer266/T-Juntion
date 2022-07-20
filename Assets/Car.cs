@@ -104,6 +104,35 @@ public class Car : MonoBehaviour
             else
                 moveOption = 0;
         }
+
+        if (other.tag == "barrier")
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.tag == "signal")
+        {
+            Signal collidedSignal = other.gameObject.GetComponent<Signal>();
+
+            if (collidedSignal.available)
+            {
+                if (!entered)
+                {
+                    // Randomly pick a moving options
+                    var rand = new System.Random();
+                    int pick = rand.Next(collidedSignal.direction.Count);
+                    moveOption = collidedSignal.direction[pick];
+
+                    // Save the old rotation for validating new rotation when turning
+                    oldRotation = transform.localRotation;
+
+                    entered = true;
+                }
+            }
+        }
     }
 
     private void OnTriggerExit(Collider other)
@@ -112,6 +141,12 @@ public class Car : MonoBehaviour
         {
             Manager.Instance.UpdateCarPassed();
         }
+
+        if (other.tag == "signal")
+        {
+            entered = false;
+            Debug.Log("Changed to false");
+        }
     }
     private void OnCollisionEnter(Collision collision)
     {
@@ -119,7 +154,7 @@ public class Car : MonoBehaviour
         {
             // SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             Manager.Instance.UpdateResetRequest(true);
-            Debug.Log("Scene reset");
+            Debug.Log("Scene reset due to collision");
         }
 
         if (collision.gameObject.tag == "destroyer")

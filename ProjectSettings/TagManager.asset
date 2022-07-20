@@ -9,6 +9,7 @@ TagManager:
   - car
   - destroyer
   - checker
+  - barrier
   layers:
   - Default
   - TransparentFX

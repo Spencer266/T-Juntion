@@ -20,10 +20,10 @@ public class Spawner : MonoBehaviour
 
     public void RandomSpawn()
     {
-        if (Random.Range(0, 1) == 0)
-            return;
+        /*if (Random.Range(0, 1) == 0)
+            return;*/
 
-        int randomDistance = Random.Range(3, 10);
+        int randomDistance = Random.Range(3, 20);
         Instantiate(spawnObject, transform.position + transform.TransformDirection(Vector3.forward*randomDistance), transform.rotation);
     }
 }

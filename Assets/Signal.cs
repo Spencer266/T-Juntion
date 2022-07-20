@@ -69,14 +69,19 @@ public class Signal : MonoBehaviour
     {
         return signalInfo;
     }
+
+    public void OnAvailableChange()
+    {
+        state = available ? "ON" : "OFF";
+        currentTimer = 0;
+    }
     void FixedUpdate()
     {
         GetSignalInfo();
         if (Input.GetKeyDown(switcher))
         {
             available = !available;
-            state = available ? "ON" : "OFF";
-            currentTimer = 0;
+            OnAvailableChange();
         }
 
         GetComponent<Renderer>().material.SetColor("_Color", available ? Color.green : Color.red);
