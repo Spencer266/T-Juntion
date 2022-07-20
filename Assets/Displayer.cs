@@ -19,10 +19,9 @@ public class Displayer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        displayInfo = signalObj.GetSignalInfo();
+        displayInfo = signalObj.SendSignalInfo();
         TimeSpan time = TimeSpan.FromSeconds(displayInfo.signalTimer);
-        textDisplayer.text = String.Format("{0}\nStopping: {1}\n{2} - {3}",
-                                            displayInfo.signalName,
+        textDisplayer.text = String.Format("\nStopping: {0}\n{1} - {2}",
                                             displayInfo.signalCounter,
                                             displayInfo.signalState,
                                             time.ToString(@"mm\:ss\:fff"));

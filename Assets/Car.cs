@@ -106,11 +106,19 @@ public class Car : MonoBehaviour
         }
     }
 
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.tag == "checker")
+        {
+            Manager.Instance.UpdateCarPassed();
+        }
+    }
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.tag == "car")
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            // SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            Manager.Instance.UpdateResetRequest(true);
             Debug.Log("Scene reset");
         }
 

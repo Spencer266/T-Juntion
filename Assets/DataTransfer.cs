@@ -57,7 +57,7 @@ public class DataTransfer : MonoBehaviour
             Debug.Log($"Received from {remoteEndpoint}: {text}");
 
             // Prepare sending data
-            sendData = signalObj.GetSignalInfo();
+            sendData = signalObj.SendSignalInfo();
             jsonData = JsonConvert.SerializeObject(sendData);
             sendBuffer = Encoding.Default.GetBytes(jsonData);
 

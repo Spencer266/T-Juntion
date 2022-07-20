@@ -6,16 +6,16 @@ using UnityEngine;
 public struct SignalInfo
 {
     public float signalTimer;
-    public string signalState;
+    public bool signalState;
     public int signalCounter;
-    public string signalName;
+    public float firstSpeed;
 
-    public void GetInfo(float t, string s, int c, string n)
+    public void GetInfo(float t, bool s, int c, float f)
     {
         signalTimer = t;
         signalState = s;
         signalCounter = c;
-        signalName = n;
+        firstSpeed = f;
     }
 }
 
@@ -29,9 +29,11 @@ public class Signal : MonoBehaviour
     private float currentTimer;
     private string state;
     private int counter = 0;
+    private float firstSpeed;
 
     private void Start()
     {
+        firstSpeed = 0;
         available = false;
         GetComponent<Renderer>().material.SetColor("_Color", Color.red);
         currentTimer = 0;
@@ -44,31 +46,40 @@ public class Signal : MonoBehaviour
         Debug.DrawRay(transform.position, transform.forward * 20f, Color.blue);
         counter = 0;
 
-        foreach (RaycastHit hit in hits)
+        if (hits.Length != 0)
         {
-            if (hit.collider.GetComponent<Rigidbody>().velocity == Vector3.zero)
+            foreach (RaycastHit hit in hits)
             {
-                counter++;
+                // Get the number of cars on 1 lane that are stopping
+                if (hit.collider.GetComponent<Rigidbody>().velocity == Vector3.zero)
+                {
+                    counter++;
+                }
             }
+            
         }
     }
 
-    public SignalInfo GetSignalInfo()
+    public void GetSignalInfo()
     {
-        signalInfo.GetInfo(currentTimer, state, counter, name);
-        return signalInfo;
+        signalInfo.GetInfo(currentTimer, available, counter, firstSpeed);
     }
 
+    public SignalInfo SendSignalInfo()
+    {
+        return signalInfo;
+    }
     void FixedUpdate()
     {
+        GetSignalInfo();
         if (Input.GetKeyDown(switcher))
         {
             available = !available;
-            GetComponent<Renderer>().material.SetColor("_Color", available ? Color.green : Color.red);
             state = available ? "ON" : "OFF";
             currentTimer = 0;
         }
 
+        GetComponent<Renderer>().material.SetColor("_Color", available ? Color.green : Color.red);
         // update timer
         currentTimer += Time.deltaTime;
 
