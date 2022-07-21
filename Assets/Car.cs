@@ -145,7 +145,6 @@ public class Car : MonoBehaviour
         if (other.tag == "signal")
         {
             entered = false;
-            Debug.Log("Changed to false");
         }
     }
     private void OnCollisionEnter(Collision collision)
@@ -158,6 +157,7 @@ public class Car : MonoBehaviour
         }
 
         if (collision.gameObject.tag == "destroyer")
+            Debug.Log("Destroy from barrier");
             Destroy(gameObject);
     }
 

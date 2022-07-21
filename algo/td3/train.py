@@ -1,5 +1,11 @@
 from td3 import TD3Agent
-from utils import plot_hundred
+# from utils import plot_hundred
+
+from mlagents_envs.environment import UnityEnvironment
+from gym_unity.envs import UnityToGymWrapper
+
+unity_env = UnityEnvironment('../../New folder/Player Control.exe')
+env = UnityToGymWrapper(unity_env, True, True)
 
 gamma = 0.9
 tau = 0.01
@@ -43,5 +49,5 @@ def td3_train(env, agent, max_episode, max_step, batch_size):
 
 episode_rewards = td3_train(env, agent, max_episode, 500, 128)
 
-plot_hundred(episode_rewards, max_episode)
+# plot_hundred(episode_rewards, max_episode)
 

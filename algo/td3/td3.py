@@ -1,7 +1,9 @@
+import torch
 from networks import QNetwork, PolicyNetwork
 from buffer import ReplayBuffer
 
-from torch.cuda import device
+from torch.optim import Adam
+import torch.nn.functional as F
 
 class TD3Agent:
   def __init__(self, env, gamma, tau, buffer_maxlen, delay_step, noise_std, noise_bound, critic_lr, actor_lr):
