@@ -58,9 +58,10 @@ public class SignalAgent : Agent
 
         signalObj3.available = controlSignal3 == 1 ? true : false;
         signalObj3.OnAvailableChange();
+
+
+        SetReward(-1 * (signalObj1.signalInfo.signalCounter + signalObj2.signalInfo.signalCounter + signalObj3.signalInfo.signalCounter));
         // Reset Request and Car Crossed will be called automatically by events
-
-
     }
 
     public override void Heuristic(in ActionBuffers actionsOut)
@@ -72,7 +73,7 @@ public class SignalAgent : Agent
     {
         // Debug.Log("Reseting Environment");
         Manager.Instance.resetRequest = false;
-        SetReward(-0.5f);
+        SetReward(-5);
         EndEpisode();
     }
 

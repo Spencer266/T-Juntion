@@ -48,15 +48,22 @@ public class Signal : MonoBehaviour
 
         if (hits.Length != 0)
         {
+            var minDist = 100000f;
             foreach (RaycastHit hit in hits)
             {
+                var currentBody = hit.collider.GetComponent<Rigidbody>();
                 // Get the number of cars on 1 lane that are stopping
-                if (hit.collider.GetComponent<Rigidbody>().velocity == Vector3.zero)
+                if (Vector3.Magnitude(currentBody.velocity) <= 0.01f)
                 {
                     counter++;
                 }
+                float x = Vector3.Distance(currentBody.transform.position, transform.position);
+                if (x < minDist)
+                {
+                    minDist = x;
+                    firstSpeed = Vector3.Magnitude(currentBody.velocity);
+                }
             }
-            
         }
     }
 
@@ -87,7 +94,6 @@ public class Signal : MonoBehaviour
         GetComponent<Renderer>().material.SetColor("_Color", available ? Color.green : Color.red);
         // update timer
         currentTimer += Time.deltaTime;
-
         CheckStop();
     }
 }
