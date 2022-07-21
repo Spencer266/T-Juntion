@@ -1,15 +1,18 @@
 import torch
-from networks import QNetwork, PolicyNetwork
-from buffer import ReplayBuffer
-
 from torch.optim import Adam
 import torch.nn.functional as F
+
+from buffer import ReplayBuffer
+from networks import QNetwork, PolicyNetwork
 
 class TD3Agent:
   def __init__(self, env, gamma, tau, buffer_maxlen, delay_step, noise_std, noise_bound, critic_lr, actor_lr):
     self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     self.env = env
+
+    print('Action obs: ', env.action_space.shape)
+
     self.state_dim = env.observation_space.shape[0]
     self.action_dim = env.action_space.shape[0]
 

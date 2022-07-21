@@ -1,8 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.distributions import Normal
-from torch.optim import Adam
 
 class QNetwork(nn.Module):
   def __init__(self, state_dim, action_dim):

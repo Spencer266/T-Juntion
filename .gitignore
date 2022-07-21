@@ -76,3 +76,5 @@ Packages/manifest.json
 Packages/packages-lock.json
 results/
 New folder/
+
+__pycache__/

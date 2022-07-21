@@ -2,10 +2,15 @@ from td3 import TD3Agent
 # from utils import plot_hundred
 
 from mlagents_envs.environment import UnityEnvironment
+from mlagents_envs.side_channel.engine_configuration_channel import EngineConfigurationChannel
 from gym_unity.envs import UnityToGymWrapper
 
-unity_env = UnityEnvironment('../../New folder/Player Control.exe')
-env = UnityToGymWrapper(unity_env, True, True)
+channel = EngineConfigurationChannel()
+
+unity_env = UnityEnvironment('../../New folder/Player Control.exe', side_channels=[channel], seed=42, worker_id=1)
+channel.set_configuration_parameters(time_scale=6.0)
+
+env = UnityToGymWrapper(unity_env, True)
 
 gamma = 0.9
 tau = 0.01
@@ -44,6 +49,8 @@ def td3_train(env, agent, max_episode, max_step, batch_size):
 
     if episode % 10 == 0:
       print("Episode " + str(episode) + ": " + str(episode_reward))
+
+  env.close()
 
   return episode_rewards
 
