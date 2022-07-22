@@ -8,7 +8,7 @@ from gym_unity.envs import UnityToGymWrapper
 channel = EngineConfigurationChannel()
 
 unity_env = UnityEnvironment('../../New folder/Player Control.exe', side_channels=[channel], seed=42, worker_id=1)
-channel.set_configuration_parameters(time_scale=6.0)
+channel.set_configuration_parameters(time_scale=20.0)
 
 env = UnityToGymWrapper(unity_env, True)
 
@@ -35,6 +35,7 @@ def td3_train(env, agent, max_episode, max_step, batch_size):
     for step in range(max_step):
       action = agent.get_action(state)
       next_state, reward, done, _ = env.step(action)
+      print(reward)
       agent.replay_buffer.push(state, action, reward, next_state, done)
       episode_reward += reward
 
