@@ -25,6 +25,7 @@ public class Signal : MonoBehaviour
     public bool available;
     public KeyCode switcher;
     public SignalInfo signalInfo;
+    public bool allowDecision;
 
     private float currentTimer;
     private string state;
@@ -38,6 +39,7 @@ public class Signal : MonoBehaviour
         GetComponent<Renderer>().material.SetColor("_Color", Color.red);
         currentTimer = 0;
         state = "OFF";
+        allowDecision = false;
     }
     private void CheckStop() 
     {
@@ -63,6 +65,16 @@ public class Signal : MonoBehaviour
                     minDist = x;
                     firstSpeed = Vector3.Magnitude(currentBody.velocity);
                 }
+            }
+            if (minDist <= 5)
+            {
+                allowDecision = true;
+                gameObject.GetComponentInParent<SignalAgent>().RequestDecision();
+                Debug.Log("Decision requested from " + gameObject.name);
+            }
+            else
+            {
+                allowDecision =false;
             }
         }
     }

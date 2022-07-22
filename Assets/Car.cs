@@ -151,13 +151,10 @@ public class Car : MonoBehaviour
     {
         if (collision.gameObject.tag == "car")
         {
-            // SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             Manager.Instance.UpdateResetRequest(true);
-            Debug.Log("Scene reset due to collision");
         }
 
         if (collision.gameObject.tag == "destroyer")
-            Debug.Log("Destroy from barrier");
             Destroy(gameObject);
     }
 
