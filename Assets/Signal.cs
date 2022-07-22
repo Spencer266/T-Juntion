@@ -66,17 +66,20 @@ public class Signal : MonoBehaviour
                     firstSpeed = Vector3.Magnitude(currentBody.velocity);
                 }
             }
-            if (minDist <= 5)
+            if (currentTimer > 3) allowDecision = false;
+            if (minDist <= 3 && !allowDecision)
             {
                 allowDecision = true;
                 gameObject.GetComponentInParent<SignalAgent>().RequestDecision();
-                Debug.Log("Decision requested from " + gameObject.name);
             }
-            else
-            {
-                allowDecision =false;
-            }
+            if (minDist > 3)
+                allowDecision = false;
         }
+    }
+
+    private void OnTriggerExit(Collider collider)
+    {
+        allowDecision = true;
     }
 
     public void GetSignalInfo()
