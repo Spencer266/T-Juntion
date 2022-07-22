@@ -4,8 +4,8 @@ import torch.nn.functional as F
 
 from networks import QNetwork, PolicyNetwork
 
-class SACAgent:
-  def __init__(self, env, gamma, tau, alpha, q_lr, policy_lr, a_lr, buffer_maxlen):
+class SAC_NoiseAgent:
+  def __init__(self, env, gamma, tau, alpha, q_lr, policy_lr, a_lr, delay_step, noise_std, noise_bound, buffer_maxlen):
     self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     self.env = env
@@ -15,7 +15,10 @@ class SACAgent:
     self.gamma = gamma    ## Discount rate
     self.tau = tau      
     self.update_step = 0
-    self.delay_step = 2
+    self.delay_step = delay_step
+
+    self.noise_std = noise_std
+    self.noise_bound = noise_bound
 
     # Init network
     ## Critic Net
@@ -53,6 +56,11 @@ class SACAgent:
   def rescale_action(self, action):
     return action * (self.action_range[1] - self.action_range[0]) / 2.0 + (self.action_range[1] + self.action_range[0]) / 2.0
 
+  # From TD3  
+  def generate_action_space_noise(self, action_batch):
+    noise = torch.normal(torch.zeros(action_batch.size()), self.noise_std).clamp(-self.noise_bound, self.noise_bound).to(self.device)
+    return noise
+
   def get_action(self, state):
     state = torch.FloatTensor(state).to(self.device).unsqueeze(0)
     mean, log_std = self.policy_net.forward(state)
@@ -75,7 +83,10 @@ class SACAgent:
     dones = torch.FloatTensor(dones).to(self.device)
     dones = dones.view(dones.size(0), -1)
 
+    action_space_noise = self.generate_action_space_noise(actions)
+
     next_actions, next_log_pi, _ = self.policy_net.sample(next_states)
+    next_actions = next_actions + action_space_noise
     next_q1 = self.target_net1(next_states, next_actions)
     next_q2 = self.target_net2(next_states, next_actions)
     next_q_target = torch.min(next_q1, next_q2) - self.alpha * next_log_pi
