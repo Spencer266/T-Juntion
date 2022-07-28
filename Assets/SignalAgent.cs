@@ -35,14 +35,17 @@ public class SignalAgent : Agent
         sensor.AddObservation(signalInfo1.signalTimer);
         sensor.AddObservation(signalInfo1.signalCounter);
         sensor.AddObservation(signalInfo1.signalState);
+        sensor.AddObservation(signalInfo1.firstSpeed);
 
         sensor.AddObservation(signalInfo2.signalTimer);
         sensor.AddObservation(signalInfo2.signalCounter);
         sensor.AddObservation(signalInfo2.signalState);
+        sensor.AddObservation(signalInfo2.firstSpeed);
 
         sensor.AddObservation(signalInfo3.signalTimer);
         sensor.AddObservation(signalInfo3.signalCounter);
         sensor.AddObservation(signalInfo3.signalState);
+        sensor.AddObservation(signalInfo3.firstSpeed);
     }
 
     public override void OnActionReceived(ActionBuffers actionBuffers)
@@ -68,7 +71,7 @@ public class SignalAgent : Agent
             signalObj3.OnAvailableChange();
         }       
 
-        SetReward(-1 * (signalObj1.signalInfo.signalCounter + signalObj2.signalInfo.signalCounter + signalObj3.signalInfo.signalCounter));
+        SetReward(-0.1f * (signalObj1.signalInfo.signalCounter + signalObj2.signalInfo.signalCounter + signalObj3.signalInfo.signalCounter));
         // Reset Request and Car Crossed will be called automatically by events
     }
 
@@ -76,7 +79,7 @@ public class SignalAgent : Agent
     {
         // Debug.Log("Reseting Environment");
         Manager.Instance.resetRequest = false;
-        SetReward(-5);
+        SetReward(-1);
         EndEpisode();
     }
 
@@ -85,6 +88,6 @@ public class SignalAgent : Agent
     {
         // Debug.Log("Car passed");
         Manager.Instance.passedCounter--;
-        SetReward(1);
+        SetReward(0.5f);
     }
 }

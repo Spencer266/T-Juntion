@@ -101,8 +101,7 @@ public class Car : MonoBehaviour
                     entered = true;
                 }
             }
-            else
-                moveOption = 0;
+            
         }
 
         if (other.tag == "barrier")
