@@ -1,15 +1,17 @@
 import torch
 from torch.optim import Adam
+from torch.distributions import Normal
 import torch.nn.functional as F
 
 from networks import QNetwork, PolicyNetwork
+from buffer import ReplayBuffer
 
 class SACAgent:
   def __init__(self, env, gamma, tau, alpha, q_lr, policy_lr, a_lr, buffer_maxlen):
     self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     self.env = env
-    self.action_range = [env.action_space.low, env.action_space.high]
+    # self.action_range = [env.action_space.low, env.action_space.high]
 
     # Hyperparameter
     self.gamma = gamma    ## Discount rate
@@ -50,8 +52,8 @@ class SACAgent:
     # ReplayBuffer
     self.replay_buffer = ReplayBuffer(buffer_maxlen)
 
-  def rescale_action(self, action):
-    return action * (self.action_range[1] - self.action_range[0]) / 2.0 + (self.action_range[1] + self.action_range[0]) / 2.0
+  # def rescale_action(self, action):
+  #   return action * (self.action_range[1] - self.action_range[0]) / 2.0 + (self.action_range[1] + self.action_range[0]) / 2.0
 
   def get_action(self, state):
     state = torch.FloatTensor(state).to(self.device).unsqueeze(0)
@@ -63,7 +65,7 @@ class SACAgent:
     action = torch.tanh(z)
     action = action.cpu().detach().squeeze(0).numpy()
 
-    return self.rescale_action(action)
+    return action
 
   def update(self, batch_size):
     states, actions, rewards, next_states, dones = self.replay_buffer.sample(batch_size)

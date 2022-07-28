@@ -2,8 +2,10 @@ import torch
 import numpy as np
 from torch.distributions import Normal
 from torch.optim import Adam
+import torch.nn as nn
 
 from networks import Network
+from buffer import ReplayBuffer
 
 class DiscreteSAC:
   def __init__(self, env, gamma, tau, 
@@ -52,6 +54,10 @@ class DiscreteSAC:
 
     # ReplayBuffer
     self.replay_buffer = ReplayBuffer(buffer_maxlen)
+
+  def generate_action_space_noise(self, action_batch):
+    noise = torch.normal(torch.zeros(action_batch.size()), self.noise_std).clamp(-self.noise_bound, self.noise_bound).to(self.device)
+    return noise
 
   def get_action(self, state, evaluation_episode=False):
     state = torch.tensor(state, dtype=torch.float32).unsqueeze(0).to(self.device)

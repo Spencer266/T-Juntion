@@ -1,5 +1,5 @@
 from sac import SACAgent
-from utils.plot import plot_hundred
+# from plotting.plot import PlotHelper
 
 from mlagents_envs.environment import UnityEnvironment
 from mlagents_envs.side_channel.engine_configuration_channel import EngineConfigurationChannel
@@ -54,4 +54,4 @@ def sac_train(env, agent, max_episode, max_step, batch_size):
 
 episode_rewards = sac_train(env, agent, max_episode, 500, 64)
 
-plot_hundred(max_episode, episode_rewards)
+# PlotHelper.plot_hundred(max_episode, episode_rewards)
