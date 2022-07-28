@@ -15,6 +15,7 @@ public class SignalAgent : Agent
     // Start is called before the first frame update
     void Start()
     {
+        Academy.Instance.AutomaticSteppingEnabled = false;
         Manager.ResetRequestChanged += ResetRequested;
         Manager.PassedCounterChanged += CarCrossed;
     }
@@ -69,11 +70,6 @@ public class SignalAgent : Agent
 
         SetReward(-1 * (signalObj1.signalInfo.signalCounter + signalObj2.signalInfo.signalCounter + signalObj3.signalInfo.signalCounter));
         // Reset Request and Car Crossed will be called automatically by events
-    }
-
-    public override void Heuristic(in ActionBuffers actionsOut)
-    {
-
     }
 
     void ResetRequested()

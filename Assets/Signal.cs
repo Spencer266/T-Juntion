@@ -2,6 +2,7 @@ using System.Collections;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.MLAgents;
 
 public struct SignalInfo
 {
@@ -71,6 +72,7 @@ public class Signal : MonoBehaviour
             {
                 allowDecision = true;
                 gameObject.GetComponentInParent<SignalAgent>().RequestDecision();
+                Academy.Instance.EnvironmentStep();
             }
             if (minDist > 3)
                 allowDecision = false;
