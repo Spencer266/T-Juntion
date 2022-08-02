@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 
 class PlotHelper:
 
-
     def plot_hundred(self, max_episode, episode_rewards):
         episodes = [i for i in range(max_episode) if i % 100 == 0]
 

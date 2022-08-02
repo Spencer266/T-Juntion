@@ -83,7 +83,6 @@ public class SignalAgent : Agent
         EndEpisode();
     }
 
-    
     void CarCrossed()
     {
         // Debug.Log("Car passed");

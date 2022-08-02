@@ -1,5 +1,7 @@
+import matplotlib
 from sac import SACAgent
 # from plotting.plot import PlotHelper
+import matplotlib.pyplot as plt
 
 from mlagents_envs.environment import UnityEnvironment
 from mlagents_envs.side_channel.engine_configuration_channel import EngineConfigurationChannel
@@ -8,7 +10,7 @@ from gym_unity.envs import UnityToGymWrapper
 channel = EngineConfigurationChannel()
 
 unity_env = UnityEnvironment('../../New folder/Player Control.exe', side_channels=[channel], seed=42, worker_id=1)
-channel.set_configuration_parameters(time_scale=20.0)
+channel.set_configuration_parameters(time_scale=6.0)
 
 env = UnityToGymWrapper(unity_env, True)
 
@@ -20,7 +22,7 @@ q_lr = 3e-4
 p_lr = 3e-3
 buffer_maxlen = 1000000
 
-max_episode = 2000
+max_episode = 20
 
 agent = SACAgent(env, gamma, tau, alpha, q_lr, p_lr, a_lr, buffer_maxlen)
 
@@ -54,4 +56,17 @@ def sac_train(env, agent, max_episode, max_step, batch_size):
 
 episode_rewards = sac_train(env, agent, max_episode, 500, 64)
 
+def plot_hundred(max_episode, episode_rewards):
+    episodes = [i for i in range(max_episode) if i % 100 == 0]
+
+    reward_per_hundred = [episode_rewards[i] for i in range(max_episode) if i % 100 == 0]
+
+    plt.figure(figsize=(10, 15))
+    plt.plot(episodes, reward_per_hundred)
+    plt.title('Reward per 100 episodes')
+    plt.xlabel("Episode")
+    plt.ylabel("Reward")
+    plt.show()
+
 # PlotHelper.plot_hundred(max_episode, episode_rewards)
+plot_hundred(max_episode, episode_rewards)
