@@ -82,7 +82,7 @@ public class Car : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.tag == "signal")
+        if (other.CompareTag("signal"))
         {
             Signal collidedSignal = other.gameObject.GetComponent<Signal>();
 
@@ -101,18 +101,12 @@ public class Car : MonoBehaviour
                     entered = true;
                 }
             }
-            
-        }
-
-        if (other.tag == "barrier")
-        {
-            Destroy(gameObject);
         }
     }
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.tag == "signal")
+        if (other.CompareTag("signal"))
         {
             Signal collidedSignal = other.gameObject.GetComponent<Signal>();
 
@@ -136,24 +130,24 @@ public class Car : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.tag == "checker")
+        if (other.CompareTag("checker"))
         {
             Manager.Instance.UpdateCarPassed();
         }
 
-        if (other.tag == "signal")
+        if (other.CompareTag("signal"))
         {
             entered = false;
         }
     }
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.tag == "car")
+        if (collision.gameObject.CompareTag("car"))
         {
             Manager.Instance.UpdateResetRequest(true);
         }
 
-        if (collision.gameObject.tag == "destroyer")
+        if (collision.gameObject.CompareTag("destroyer"))
             Destroy(gameObject);
     }
 
@@ -170,6 +164,8 @@ public class Car : MonoBehaviour
         {
             if (hit.collider.tag == "signal")
                 return !hit.collider.gameObject.GetComponent<Signal>().available;
+            else if (hit.collider.tag == "destroyer")
+                return false;
             else
                 return true;
         }
