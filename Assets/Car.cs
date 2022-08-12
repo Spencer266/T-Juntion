@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -29,7 +30,7 @@ public class Car : MonoBehaviour
     public float steerAngleLeft;
     public float steerAngleRight;
 
-    private float currentAcceleration = 0f;
+    public float currentAcceleration = 0f;
     private float currentBrake = 0f;
     private float currentSteerAngle = 0f;
 
@@ -210,7 +211,6 @@ public class Car : MonoBehaviour
         rearRight.steerAngle = currentSteerAngle;
 
         // Logging
-        
     }
 
 }

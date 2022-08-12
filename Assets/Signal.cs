@@ -6,6 +6,7 @@ using Unity.MLAgents;
 
 public struct SignalInfo
 {
+    public float timerOn;
     public float signalTimer;
     public bool signalState;
     public int signalCounter;
@@ -17,6 +18,7 @@ public struct SignalInfo
         signalState = s;
         signalCounter = c;
         firstSpeed = f;
+        timerOn = signalState ? 0 : t;
     }
 }
 
@@ -29,7 +31,6 @@ public class Signal : MonoBehaviour
     public bool allowDecision;
 
     private float currentTimer;
-    private string state;
     private int counter = 0;
     private float firstSpeed;
 
@@ -39,7 +40,6 @@ public class Signal : MonoBehaviour
         available = false;
         GetComponent<Renderer>().material.SetColor("_Color", Color.red);
         currentTimer = 0;
-        state = "OFF";
         allowDecision = false;
     }
     private void CheckStop() 
@@ -56,7 +56,7 @@ public class Signal : MonoBehaviour
             {
                 var currentBody = hit.collider.GetComponent<Rigidbody>();
                 // Get the number of cars on 1 lane that are stopping
-                if (Vector3.Magnitude(currentBody.velocity) <= 0.01f)
+                if (Vector3.Magnitude(currentBody.velocity) <= 0.5f && hit.collider.GetComponent<Car>().currentAcceleration == 0)
                 {
                     counter++;
                 }
@@ -96,7 +96,6 @@ public class Signal : MonoBehaviour
 
     public void OnAvailableChange()
     {
-        state = available ? "ON" : "OFF";
         currentTimer = 0;
     }
     void FixedUpdate()

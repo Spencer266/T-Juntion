@@ -1,1 +1,67 @@
-{"count":1,"self":124.00017919999999,"total":220.192334,"children":{"InitializeActuators":{"count":1,"self":0.0019981,"total":0.0019981,"children":null},"InitializeSensors":{"count":1,"self":0.0029984,"total":0.0029984,"children":null},"AgentSendState":{"count":105934,"self":0.3334198,"total":1.0647592,"children":{"CollectObservations":{"count":10594,"self":0.0310082,"total":0.0310082,"children":null},"WriteActionMask":{"count":10594,"self":0.022976299999999998,"total":0.022976299999999998,"children":null},"RequestDecision":{"count":10594,"self":0.1324942,"total":0.6773549,"children":{"AgentInfo.ToProto":{"count":10594,"self":0.1001724,"total":0.5448607,"children":{"GenerateSensorData":{"count":10594,"self":0.4446883,"total":0.4446883,"children":null}}}}}}},"DecideAction":{"count":105934,"self":94.67731839999999,"total":94.6773183,"children":null},"AgentAct":{"count":105934,"self":0.43908189999999997,"total":0.43908189999999997,"children":{"AgentInfo.ToProto":{"count":3,"self":0,"total":0,"children":{"GenerateSensorData":{"count":3,"self":0,"total":0,"children":null}}}}},"AgentInfo.ToProto":{"count":49,"self":0,"total":0.0019965,"children":{"GenerateSensorData":{"count":49,"self":0.0019965,"total":0.0019965,"children":null}}}},"gauges":{"SignalAgent.CumulativeReward":{"count":52,"max":1,"min":-2,"runningAverage":-0.7211539,"value":-1,"weightedAverage":-0.7118561}},"metadata":{"timer_format_version":"0.1.0","start_time_seconds":"1659525020","unity_version":"2020.3.33f1","command_line_arguments":"C:\\Program Files\\Unity\\Hub\\Editor\\2020.3.33f1\\Editor\\Unity.exe -projectpath D:\\New folder (6)\\T-Juntion -useHub -hubIPC -cloudEnvironment production -licensingIpc LicenseClient-PC7 -hubSessionId f48e0660-08d8-11ed-b49f-1f3b49ea4d82 -accessToken yYhSS4dC7rqlus2i_xMpE9qVSXvihxb7ea7SfbeEaPY011f","communication_protocol_version":"1.5.0","com.unity.ml-agents_version":"2.2.1-exp.1","scene_name":"T_Roads","end_time_seconds":"1659525240"}}
+{
+  "count": 1,
+  "self": 27.268403199999998,
+  "total": 29.6139115,
+  "children": {
+    "InitializeActuators": {
+      "count": 1,
+      "self": 0.0019987,
+      "total": 0.0019987,
+      "children": null
+    },
+    "InitializeSensors": {
+      "count": 1,
+      "self": 0.0019986,
+      "total": 0.0019986,
+      "children": null
+    },
+    "AgentSendState": {
+      "count": 3582,
+      "self": 0.0320528,
+      "total": 0.0670088,
+      "children": {
+        "CollectObservations": {
+          "count": 3582,
+          "self": 0.0119761,
+          "total": 0.0119761,
+          "children": null
+        },
+        "WriteActionMask": {
+          "count": 3582,
+          "self": 0.0030034999999999997,
+          "total": 0.0030034999999999997,
+          "children": null
+        },
+        "RequestDecision": {
+          "count": 3582,
+          "self": 0.0199764,
+          "total": 0.0199764,
+          "children": null
+        }
+      }
+    },
+    "DecideAction": {
+      "count": 3582,
+      "self": 2.2515266,
+      "total": 2.2515266,
+      "children": null
+    },
+    "AgentAct": {
+      "count": 3582,
+      "self": 0.0209769,
+      "total": 0.0209769,
+      "children": null
+    }
+  },
+  "gauges": {},
+  "metadata": {
+    "timer_format_version": "0.1.0",
+    "start_time_seconds": "1659843312",
+    "unity_version": "2020.3.33f1",
+    "command_line_arguments": "H:\\Program Files\\Unity\\2020.3.33f1\\Editor\\Unity.exe -projectPath F:\\Workstorage\\Unity projects\\Player Control",
+    "communication_protocol_version": "1.5.0",
+    "com.unity.ml-agents_version": "2.2.1-exp.1",
+    "scene_name": "T_Roads",
+    "end_time_seconds": "1659843342"
+  }
+}

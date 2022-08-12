@@ -13,7 +13,7 @@ public class Spawner : MonoBehaviour
 
     IEnumerator SpawnObject()
     {
-        yield return new WaitForSeconds(Random.Range(10, 15));
+        yield return new WaitForSeconds(Random.Range(5, 10));
         Instantiate(spawnObject, transform.position + transform.TransformDirection(Vector3.forward), transform.rotation);
         StartCoroutine(SpawnObject());
     }
