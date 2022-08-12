@@ -11,8 +11,6 @@ class TD3Agent:
 
     self.env = env
 
-    print('Action obs: ', env.action_space.shape)
-
     self.state_dim = env.observation_space.shape[0]
     self.action_dim = env.action_space.shape[0]
 
@@ -105,5 +103,5 @@ class TD3Agent:
       self.actor_optim.step()
 
       self.update_targets()
-
+  
     self.update_step += 1

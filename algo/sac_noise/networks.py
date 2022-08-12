@@ -50,7 +50,7 @@ class PolicyNetwork(nn.Module):
 
     return action, log_pi, mean
 
-    def to(self, device):
-      self.action_scale = self.action_scale.to(device)
-      self.action_bias = self.action_bias.to(device)
-      return super(PolicyNetwork, self).to(device)
+  def to(self, device):
+    self.action_scale = self.action_scale.to(device)
+    self.action_bias = self.action_bias.to(device)
+    return super(PolicyNetwork, self).to(device)

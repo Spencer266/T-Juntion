@@ -5,9 +5,13 @@ from torch.distributions import Normal
 
 ## Act as Critic
 class QNetwork(nn.Module):
-  def __init__(self, num_inputs, num_actions, hidden_dim=256, init_w=3e-3):
+  def __init__(self, state_dim, action_dim, hidden_dim=256, init_w=3e-3):
     super(QNetwork, self).__init__()
-    self.linear1 = nn.Linear(num_inputs + num_actions, hidden_dim)
+
+    self.state_dim = state_dim
+    self.action_dim = action_dim
+
+    self.linear1 = nn.Linear(self.state_dim + self.action_dim, hidden_dim)
     self.linear2 = nn.Linear(hidden_dim, hidden_dim)
     self.linear3 = nn.Linear(hidden_dim, 1)
 
@@ -19,23 +23,27 @@ class QNetwork(nn.Module):
     x = F.relu(self.linear1(x))
     x = F.relu(self.linear2(x))
     x = self.linear3(x)
+
     return x
 
 ## Act as Actor
 class PolicyNetwork(nn.Module):
-  def __init__(self, num_inputs, num_actions, hidden_dim=256, init_w=3e-3, log_std_min=-20, log_std_max=2):
+  def __init__(self, state_dim, action_dim, hidden_dim=256, init_w=3e-3, log_std_min=-20, log_std_max=2):
     super(PolicyNetwork, self).__init__()
     self.log_std_min = log_std_min
     self.log_std_max = log_std_max
 
-    self.linear1 = nn.Linear(num_inputs, hidden_dim)
+    self.state_dim = state_dim
+    self.action_dim = action_dim
+
+    self.linear1 = nn.Linear(self.state_dim, hidden_dim)
     self.linear2 = nn.Linear(hidden_dim, hidden_dim)
 
-    self.mean_linear = nn.Linear(hidden_dim, num_actions)
+    self.mean_linear = nn.Linear(hidden_dim, self.action_dim)
     self.mean_linear.weight.data.uniform_(-init_w, init_w)
     self.mean_linear.bias.data.uniform_(-init_w, init_w)
 
-    self.log_std_linear = nn.Linear(hidden_dim, num_actions)
+    self.log_std_linear = nn.Linear(hidden_dim, self.action_dim)
     self.log_std_linear.weight.data.uniform_(-init_w, init_w)
     self.log_std_linear.bias.data.uniform_(-init_w, init_w)
 
@@ -62,7 +70,7 @@ class PolicyNetwork(nn.Module):
     action = action * self.action_scale + self.action_bias
 
     # Enforcing action bound
-    log_pi = normal.log_prob(z) - torch.log(1 - action.pow(2) + epsilon)
+    log_pi = normal.log_prob(z) - torch.log(self.action_scale - action.pow(2) + epsilon)
     log_pi = log_pi.sum(1, keepdim=True)
     mean = torch.tanh(mean) * self.action_scale + self.action_bias
 

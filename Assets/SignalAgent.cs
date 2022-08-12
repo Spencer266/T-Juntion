@@ -15,7 +15,7 @@ public class SignalAgent : Agent
     // Start is called before the first frame update
     void Start()
     {
-        Academy.Instance.AutomaticSteppingEnabled = false;
+        // Academy.Instance.AutomaticSteppingEnabled = false;
         Manager.ResetRequestChanged += ResetRequested;
         Manager.PassedCounterChanged += CarCrossed;
     }
@@ -35,41 +35,38 @@ public class SignalAgent : Agent
         sensor.AddObservation(signalInfo1.signalTimer);
         sensor.AddObservation(signalInfo1.signalCounter);
         sensor.AddObservation(signalInfo1.signalState);
-        sensor.AddObservation(signalInfo1.firstSpeed);
+        // sensor.AddObservation(signalInfo1.firstSpeed);
 
         sensor.AddObservation(signalInfo2.signalTimer);
         sensor.AddObservation(signalInfo2.signalCounter);
         sensor.AddObservation(signalInfo2.signalState);
-        sensor.AddObservation(signalInfo2.firstSpeed);
+        // sensor.AddObservation(signalInfo2.firstSpeed);
 
         sensor.AddObservation(signalInfo3.signalTimer);
         sensor.AddObservation(signalInfo3.signalCounter);
         sensor.AddObservation(signalInfo3.signalState);
-        sensor.AddObservation(signalInfo3.firstSpeed);
+        // sensor.AddObservation(signalInfo3.firstSpeed);
     }
 
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
-        if (signalObj1.allowDecision)
-        {
+
             float controlSignal1 = actionBuffers.DiscreteActions[0];
             signalObj1.available = controlSignal1 == 1 ? true : false;
             signalObj1.OnAvailableChange();
-        }
+
         
-        if (signalObj2.allowDecision)
-        {
+
             float controlSignal2 = actionBuffers.DiscreteActions[1];
             signalObj2.available = controlSignal2 == 1 ? true : false;
             signalObj2.OnAvailableChange();
-        }
+
         
-        if (signalObj3.allowDecision)
-        {
+
             float controlSignal3 = actionBuffers.DiscreteActions[2];
             signalObj3.available = controlSignal3 == 1 ? true : false;
             signalObj3.OnAvailableChange();
-        }       
+     
 
         SetReward(-0.1f * (signalObj1.signalInfo.signalCounter + signalObj2.signalInfo.signalCounter + signalObj3.signalInfo.signalCounter));
         // Reset Request and Car Crossed will be called automatically by events

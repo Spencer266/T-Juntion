@@ -1,16 +1,23 @@
-from td3 import TD3Agent
-# from utils.plot import plot_hundred
+import sys 
+import os
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../'))
 
 from mlagents_envs.environment import UnityEnvironment
 from mlagents_envs.side_channel.engine_configuration_channel import EngineConfigurationChannel
 from gym_unity.envs import UnityToGymWrapper
 
+from td3 import TD3Agent
+from plotting.plot import plot_hundred, plot_ten
+
 channel = EngineConfigurationChannel()
 
 unity_env = UnityEnvironment('../../New folder/Player Control.exe', side_channels=[channel], seed=42, worker_id=1)
-channel.set_configuration_parameters(time_scale=20.0)
+channel.set_configuration_parameters(time_scale=3.0)
 
 env = UnityToGymWrapper(unity_env, True)
+
+print(env.action_space.shape[0])
 
 gamma = 0.9
 tau = 0.01
@@ -35,7 +42,6 @@ def td3_train(env, agent, max_episode, max_step, batch_size):
     for step in range(max_step):
       action = agent.get_action(state)
       next_state, reward, done, _ = env.step(action)
-      print(reward, done)
       agent.replay_buffer.push(state, action, reward, next_state, done)
       episode_reward += reward
 
@@ -57,5 +63,7 @@ def td3_train(env, agent, max_episode, max_step, batch_size):
 
 episode_rewards = td3_train(env, agent, max_episode, 500, 128)
 
-# plot_hundred(episode_rewards, max_episode)
+plot_ten(max_episode, episode_rewards)
+
+plot_hundred(max_episode, episode_rewards)
 

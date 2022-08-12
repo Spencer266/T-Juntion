@@ -1,9 +1,13 @@
-from sac_noise import SAC_NoiseAgent
-from utils.plot import plot_hundred
+import os
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../'))
 
 from mlagents_envs.environment import UnityEnvironment
 from mlagents_envs.side_channel.engine_configuration_channel import EngineConfigurationChannel
 from gym_unity.envs import UnityToGymWrapper
+
+from sac_noise import SAC_NoiseAgent
+from plotting.plot import plot_ten, plot_hundred
 
 channel = EngineConfigurationChannel()
 
@@ -57,4 +61,5 @@ agent = SAC_NoiseAgent(env, gamma, tau, alpha, q_lr, p_lr, a_lr, delay_step, noi
 
 episode_rewards = sac_noise_train(env, agent, max_episode, 500, 64)
 
+plot_ten(max_episode, episode_rewards)
 plot_hundred(max_episode, episode_rewards)

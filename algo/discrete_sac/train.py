@@ -1,16 +1,27 @@
-from discrete_sac import DiscreteSACS
-from utils.plot import plot_hundred
+import sys 
+import os
+import numpy as np
+
+from discrete_sac import SACAgent
+from utils import ReplayBuffer
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../'))
 
 from mlagents_envs.environment import UnityEnvironment
 from mlagents_envs.side_channel.engine_configuration_channel import EngineConfigurationChannel
 from gym_unity.envs import UnityToGymWrapper
 
+from plotting.plot import plot_ten, plot_hundred
+
 channel = EngineConfigurationChannel()
 
 unity_env = UnityEnvironment('../../New folder/Player Control.exe', side_channels=[channel], seed=42, worker_id=1)
-channel.set_configuration_parameters(time_scale=20.0)
+channel.set_configuration_parameters(time_scale=3.0)
 
 env = UnityToGymWrapper(unity_env, True)
+
+state_dim = env._observation_space.shape[0]
+action_dim = env._action_space.shape[0]
 
 gamma = 0.99
 tau = 0.01
@@ -20,6 +31,8 @@ p_lr = 3e-4
 buffer_maxlen = 1000000
 
 max_episode = 2000
+
+agent = SACAgent(state_dim, action_dim, re)
 
 def discrete_sac_train(env, agent, max_episode, max_step, batch_size):
   episode_rewards = []
@@ -31,6 +44,7 @@ def discrete_sac_train(env, agent, max_episode, max_step, batch_size):
 
     for step in range(max_step):
       action = agent.get_action(state)
+      print(np.array(action).size)
       next_state, reward, done, _ = env.step(action)
       agent.replay_buffer.push(state, action, reward, next_state, done)
       episode_reward += reward
@@ -52,4 +66,5 @@ def discrete_sac_train(env, agent, max_episode, max_step, batch_size):
 
 episode_rewards = discrete_sac_train(env, agent, max_episode, 500, 64)
 
+plot_ten(max_episode, episode_rewards)
 plot_hundred(max_episode, episode_rewards)
