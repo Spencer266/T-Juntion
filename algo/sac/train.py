@@ -30,6 +30,7 @@ delay_step = 2
 buffer_maxlen = 1000000
 
 max_episode = 2000
+max_step = 5000
 
 agent = SACAgent(env, gamma, tau, alpha, critic_lr, actor_lr, a_lr, buffer_maxlen, delay_step)
 
@@ -42,7 +43,6 @@ def sac_train(env, agent, max_episode, max_step, batch_size):
 
     for step in range(max_step):
       action = agent.get_action(state)
-      print(action)
       next_state, reward, done, _ = env.step(action)
       agent.replay_buffer.push(state, action, reward, next_state, done)
       episode_reward += reward
@@ -63,7 +63,7 @@ def sac_train(env, agent, max_episode, max_step, batch_size):
 
   return episode_rewards
 
-episode_rewards = sac_train(env, agent, max_episode, 500, 128)
+episode_rewards = sac_train(env, agent, max_episode, max_step, 128)
 
 plot_ten(max_episode, episode_rewards)
 plot_hundred(max_episode, episode_rewards)

@@ -71,8 +71,8 @@ public class Signal : MonoBehaviour
             if (minDist <= 3 && !allowDecision)
             {
                 allowDecision = true;
-                /*gameObject.GetComponentInParent<SignalAgent>().RequestDecision();
-                Academy.Instance.EnvironmentStep();*/
+                gameObject.GetComponentInParent<SignalAgent>().RequestDecision();
+                Academy.Instance.EnvironmentStep();
             }
             if (minDist > 3)
                 allowDecision = false;
