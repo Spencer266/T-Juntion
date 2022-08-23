@@ -50,36 +50,13 @@ public class SignalAgent : Agent
 
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
-        bool controlSignal;
-        if (signalObj1.allowDecision)
-        {
-            controlSignal = actionBuffers.DiscreteActions[0] == 1 ? true : false;
-            if (controlSignal != signalObj1.available)
-            {
-                signalObj1.available = controlSignal;
-                signalObj1.OnAvailableChange();
-            }
-        }
-        
-        if (signalObj2.allowDecision)
-        {
-            controlSignal = actionBuffers.DiscreteActions[1] == 1 ? true : false;
-            if (controlSignal != signalObj2.available)
-            {
-                signalObj2.available = controlSignal;
-                signalObj2.OnAvailableChange();
-            }
-        }
-        
-        if (signalObj3.allowDecision)
-        {
-            controlSignal = actionBuffers.DiscreteActions[2] == 1 ? true : false;
-            if (controlSignal != signalObj3.available)
-            {
-                signalObj3.available = controlSignal;
-                signalObj3.OnAvailableChange();
-            }
-        }       
+
+        byte act = (byte)actionBuffers.DiscreteActions[0];
+        BitArray comb = new BitArray(new byte[] { act });
+
+        signalObj1.NewSignal(comb[0]);
+        signalObj2.NewSignal(comb[1]);
+        signalObj3.NewSignal(comb[2]);
 
         SetReward(-1 * (signalObj1.signalInfo.signalCounter + signalObj2.signalInfo.signalCounter + signalObj3.signalInfo.signalCounter));
         // Reset Request and Car Crossed will be called automatically by events

@@ -94,9 +94,18 @@ public class Signal : MonoBehaviour
         return signalInfo;
     }
 
-    public void OnAvailableChange()
+    private void OnAvailableChange()
     {
         currentTimer = 0;
+    }
+
+    public void NewSignal(bool value)
+    {
+        if (available != value && allowDecision)
+        {
+            available = value;
+            OnAvailableChange();
+        }
     }
     void FixedUpdate()
     {
