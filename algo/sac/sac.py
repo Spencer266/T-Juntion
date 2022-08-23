@@ -1,6 +1,7 @@
 import torch
 from torch.optim import Adam
 from torch.distributions import Normal
+import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 
@@ -53,8 +54,13 @@ class SACAgent:
     self.log_alpha = torch.zeros(1, requires_grad=True, device=self.device)
     self.alpha_optim = Adam([self.log_alpha], lr=a_lr)
 
+    # Losses
+    self.soft_q_criterion = nn.MSELoss()
+
     # ReplayBuffer
     self.replay_buffer = ReplayBuffer(capacity=buffer_maxlen)
+
+    self.log = {'critic_loss': [], 'policy_loss': [], 'entropy_loss': []}
 
   # def rescale_action(self, action):
   #   return action * (self.action_range[1] - self.action_range[0]) / 2.0 + (self.action_range[1] + self.action_range[0]) / 2.0
@@ -95,6 +101,8 @@ class SACAgent:
     q1_loss = F.mse_loss(curr_q1, expected_q.detach())
     q2_loss = F.mse_loss(curr_q2, expected_q.detach())
 
+    q_loss = q1_loss + q2_loss
+
     # Update Q networks
     self.critic1_optim.zero_grad()
     q1_loss.backward()
@@ -118,12 +126,17 @@ class SACAgent:
       # Target network
       self.update_targets()
 
-    # Update tempature
+      self.log['critic_loss'].append(q_loss.item())
+      self.log['policy_loss'].append(policy_loss)
+
+    # Entropy adjustment for maximum entropy 
     alpha_loss = (self.log_alpha * (-log_pi - self.target_entropy).detach()).mean()
 
     self.alpha_optim.zero_grad()
     alpha_loss.backward()
     self.alpha_optim.step()
     self.alpha = self.log_alpha.exp()
+
+    self.log['entropy_loss'].append(alpha_loss)
 
     self.update_step += 1

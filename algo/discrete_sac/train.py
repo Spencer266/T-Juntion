@@ -11,7 +11,7 @@ from mlagents_envs.environment import UnityEnvironment
 from mlagents_envs.side_channel.engine_configuration_channel import EngineConfigurationChannel
 from gym_unity.envs import UnityToGymWrapper
 
-from plotting.plot import plot_ten, plot_hundred
+from plotting.plot import plot_ten, plot_hundred, plot_loss
 
 channel = EngineConfigurationChannel()
 
@@ -31,8 +31,11 @@ p_lr = 3e-4
 buffer_maxlen = 1000000
 
 max_episode = 2000
+max_step = 5000
 
-agent = SACAgent(state_dim, action_dim, re)
+replay_buffer = ReplayBuffer(capacity=buffer_maxlen)
+
+agent = SACAgent(state_dim, action_dim, replay_buffer)
 
 def discrete_sac_train(env, agent, max_episode, max_step, batch_size):
   episode_rewards = []
@@ -44,7 +47,7 @@ def discrete_sac_train(env, agent, max_episode, max_step, batch_size):
 
     for step in range(max_step):
       action = agent.get_action(state)
-      print(np.array(action).size)
+      print('Before numpy: ', type(action))
       next_state, reward, done, _ = env.step(action)
       agent.replay_buffer.push(state, action, reward, next_state, done)
       episode_reward += reward
@@ -64,7 +67,7 @@ def discrete_sac_train(env, agent, max_episode, max_step, batch_size):
 
   return episode_rewards
 
-episode_rewards = discrete_sac_train(env, agent, max_episode, 500, 64)
+episode_rewards = discrete_sac_train(env, agent, max_episode, max_step, 128)
 
 plot_ten(max_episode, episode_rewards)
 plot_hundred(max_episode, episode_rewards)

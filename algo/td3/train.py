@@ -8,7 +8,7 @@ from mlagents_envs.side_channel.engine_configuration_channel import EngineConfig
 from gym_unity.envs import UnityToGymWrapper
 
 from td3 import TD3Agent
-from plotting.plot import plot_hundred, plot_ten
+from plotting.plot import plot_hundred, plot_ten, plot_loss
 
 channel = EngineConfigurationChannel()
 
@@ -27,6 +27,7 @@ noise_std = 0.2
 noise_bound = 0.5
 delay_step = 2
 buffer_maxlen = 1000000
+max_step = 5000
 
 max_episode = 2000
 
@@ -61,9 +62,16 @@ def td3_train(env, agent, max_episode, max_step, batch_size):
 
   return episode_rewards
 
-episode_rewards = td3_train(env, agent, max_episode, 500, 128)
+episode_rewards = td3_train(env, agent, max_episode, max_step, 128)
+
+q_loss = agent.log['critic_loss']
+p_loss = agent.log['policy_loss']
 
 plot_ten(max_episode, episode_rewards)
 
 plot_hundred(max_episode, episode_rewards)
+
+plot_loss(max_episode, q_loss, 'Critic loss')
+
+plot_loss(max_episode, p_loss, 'Policy loss')
 

@@ -1,6 +1,7 @@
 import torch
 from torch.optim import Adam
 import torch.nn.functional as F
+import torch.nn as nn
 
 from buffer import ReplayBuffer
 from networks import QNetwork, PolicyNetwork
@@ -45,6 +46,10 @@ class TD3Agent:
 
     self.replay_buffer = ReplayBuffer(capacity=buffer_maxlen)
 
+    self.solf_q_net_criterion = nn.MSELoss()
+
+    self.log = {'critic_loss': [], 'policy_loss': []}
+
   def get_action(self, state):
     state = torch.FloatTensor(state).unsqueeze(0).to(self.device)
     action = self.actor.forward(state)
@@ -85,6 +90,7 @@ class TD3Agent:
     curr_Q2 = self.critic2.forward(state_batch, action_batch)
     critic1_loss = F.mse_loss(curr_Q1, expected_Q.detach())
     critic2_loss = F.mse_loss(curr_Q2, expected_Q.detach())
+    critic_loss = critic1_loss + critic2_loss
 
     # Update critic
     self.critic1_optim.zero_grad()
@@ -103,5 +109,8 @@ class TD3Agent:
       self.actor_optim.step()
 
       self.update_targets()
+
+      self.log['critic_loss'].append(critic_loss.item())
+      self.log['policy_loss'].append(policy_gradient)
   
     self.update_step += 1
