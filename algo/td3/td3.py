@@ -1,4 +1,3 @@
-import numpy as np
 import torch
 from torch.optim import Adam
 import torch.nn.functional as F
@@ -46,12 +45,14 @@ class TD3Agent:
 
     self.replay_buffer = ReplayBuffer(capacity=buffer_maxlen)
 
+    self.log = {'critic_loss': [], 'policy_loss': []}
+
   def get_action(self, state):
     state = torch.FloatTensor(state).unsqueeze(0).to(self.device)
     action = self.actor.forward(state)
     action = action.squeeze(0).cpu().detach().numpy()
 
-    return np.argmax(action)
+    return action
 
   def generate_action_space_noise(self, action_batch):
     noise = torch.normal(torch.zeros(action_batch.size()), self.noise_std).clamp(-self.noise_bound, self.noise_bound).to(self.device)
@@ -87,6 +88,8 @@ class TD3Agent:
     critic1_loss = F.mse_loss(curr_Q1, expected_Q.detach())
     critic2_loss = F.mse_loss(curr_Q2, expected_Q.detach())
 
+    critic_loss = critic1_loss + critic2_loss
+
     # Update critic
     self.critic1_optim.zero_grad()
     critic1_loss.backward()
@@ -104,5 +107,8 @@ class TD3Agent:
       self.actor_optim.step()
 
       self.update_targets()
+
+      self.log['critic_loss'].append(critic_loss.item())
+      self.log['policy_loss'].append(policy_gradient)
   
     self.update_step += 1

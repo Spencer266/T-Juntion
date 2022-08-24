@@ -1,5 +1,6 @@
 import sys 
 import os
+import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../'))
 
@@ -8,7 +9,7 @@ from mlagents_envs.side_channel.engine_configuration_channel import EngineConfig
 from gym_unity.envs import UnityToGymWrapper
 
 from td3 import TD3Agent
-from plotting.plot import plot_hundred, plot_ten
+from plotting.plot import plot_hundred, plot_ten, plot_loss
 
 channel = EngineConfigurationChannel()
 
@@ -43,8 +44,7 @@ def td3_train(env, agent, max_episode, max_step, batch_size):
 
     for step in range(max_step):
       action = agent.get_action(state)
-      print(action)
-      next_state, reward, done, _ = env.step(action)
+      next_state, reward, done, _ = env.step(np.argmax(action))
       agent.replay_buffer.push(state, action, reward, next_state, done)
       episode_reward += reward
 
@@ -66,7 +66,14 @@ def td3_train(env, agent, max_episode, max_step, batch_size):
 
 episode_rewards = td3_train(env, agent, max_episode, 500, 128)
 
+q_loss = agent.log['critic_loss']
+p_loss = agent.log['policy_loss']
+
 plot_ten(max_episode, episode_rewards)
 
 plot_hundred(max_episode, episode_rewards)
+
+plot_loss(max_episode, q_loss, 'Critic loss')
+
+plot_loss(max_episode, p_loss, 'Policy loss')
 

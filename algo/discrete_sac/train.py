@@ -42,6 +42,7 @@ def discrete_sac_train(env, agent, max_episode, max_step, batch_size):
 
     for step in range(max_step):
       action = agent.get_action(state)
+      print(action)
       next_state, reward, done, _ = env.step(action)
       agent.replay_buffer.push(state, action, reward, next_state, done)
       episode_reward += reward
