@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 from torch.optim import Adam
 import torch.nn.functional as F
@@ -12,7 +13,7 @@ class TD3Agent:
     self.env = env
 
     self.state_dim = env.observation_space.shape[0]
-    self.action_dim = env.action_space.shape[0]
+    self.action_dim = env.action_space.n
 
     # Hyperparam
     self.gamma = gamma          # Discount factor
@@ -50,7 +51,7 @@ class TD3Agent:
     action = self.actor.forward(state)
     action = action.squeeze(0).cpu().detach().numpy()
 
-    return action
+    return np.argmax(action)
 
   def generate_action_space_noise(self, action_batch):
     noise = torch.normal(torch.zeros(action_batch.size()), self.noise_std).clamp(-self.noise_bound, self.noise_bound).to(self.device)

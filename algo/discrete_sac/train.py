@@ -1,9 +1,7 @@
 import sys 
 import os
-import numpy as np
 
-from discrete_sac import SACAgent
-from utils import ReplayBuffer
+from discrete_sac import DiscreteSAC
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../'))
 
@@ -11,7 +9,7 @@ from mlagents_envs.environment import UnityEnvironment
 from mlagents_envs.side_channel.engine_configuration_channel import EngineConfigurationChannel
 from gym_unity.envs import UnityToGymWrapper
 
-from plotting.plot import plot_ten, plot_hundred
+from plotting.plot import plot_ten, plot_hundred, plot_loss
 
 channel = EngineConfigurationChannel()
 
@@ -21,18 +19,18 @@ channel.set_configuration_parameters(time_scale=3.0)
 env = UnityToGymWrapper(unity_env, True)
 
 state_dim = env._observation_space.shape[0]
-action_dim = env._action_space.shape[0]
+action_dim = env._action_space.n
 
 gamma = 0.99
 tau = 0.01
 a_lr = 3e-4
 q_lr = 3e-4
-p_lr = 3e-4
+policy_lr = 3e-4
 buffer_maxlen = 1000000
 
 max_episode = 2000
 
-agent = SACAgent(state_dim, action_dim, re)
+agent = DiscreteSAC(env, gamma, tau, q_lr, policy_lr, a_lr, buffer_maxlen)
 
 def discrete_sac_train(env, agent, max_episode, max_step, batch_size):
   episode_rewards = []
@@ -44,7 +42,6 @@ def discrete_sac_train(env, agent, max_episode, max_step, batch_size):
 
     for step in range(max_step):
       action = agent.get_action(state)
-      print(np.array(action).size)
       next_state, reward, done, _ = env.step(action)
       agent.replay_buffer.push(state, action, reward, next_state, done)
       episode_reward += reward
@@ -66,5 +63,13 @@ def discrete_sac_train(env, agent, max_episode, max_step, batch_size):
 
 episode_rewards = discrete_sac_train(env, agent, max_episode, 500, 64)
 
+q_loss = agent.log['critic_loss']
+p_loss = agent.log['policy_loss']
+entropy_loss = agent.log['entropy_loss']
+
 plot_ten(max_episode, episode_rewards)
 plot_hundred(max_episode, episode_rewards)
+plot_loss(max_episode, q_loss, 'Critic loss')
+plot_loss(max_episode, p_loss, 'Policy loss')
+plot_loss(max_episode, entropy_loss, 'Entropy loss')
+

@@ -25,3 +25,16 @@ def plot_ten(max_episode, episode_rewards):
     plt.ylabel("Reward")
     plt.grid(True)
     plt.show()
+
+def plot_loss(max_episode, loss, name):
+    episodes = [i for i in range(max_episode) if i % 10 == 0]
+
+    loss_to_plot = [loss[i] for i in range(max_episode) if i % 10 == 0]
+
+    plt.figure(figsize=(10, 15))
+    plt.plot(episodes, loss_to_plot)
+    plt.title(name)
+    plt.xlabel("Episode")
+    plt.ylabel("Loss")
+    plt.grid(True)
+    plt.show()

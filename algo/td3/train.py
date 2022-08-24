@@ -15,9 +15,11 @@ channel = EngineConfigurationChannel()
 unity_env = UnityEnvironment('../../New folder/Player Control.exe', side_channels=[channel], seed=42, worker_id=1)
 channel.set_configuration_parameters(time_scale=3.0)
 
-env = UnityToGymWrapper(unity_env, True)
+env = UnityToGymWrapper(unity_env, uint8_visual=True, flatten_branched=True)
 
-print(env.action_space.shape[0])
+print(env.action_space)
+print(env.action_space.shape)
+print(env._action_space.n)
 
 gamma = 0.9
 tau = 0.01
@@ -41,6 +43,7 @@ def td3_train(env, agent, max_episode, max_step, batch_size):
 
     for step in range(max_step):
       action = agent.get_action(state)
+      print(action)
       next_state, reward, done, _ = env.step(action)
       agent.replay_buffer.push(state, action, reward, next_state, done)
       episode_reward += reward
