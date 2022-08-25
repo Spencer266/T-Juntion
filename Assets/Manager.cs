@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.MLAgents;
 
 public class Manager : MonoBehaviour
 {
@@ -20,6 +21,7 @@ public class Manager : MonoBehaviour
     {
         Instance = this;
         resetRequest = false;
+        passedCounter = 0;
     }
 
     public void UpdateResetRequest(bool state)
@@ -45,6 +47,8 @@ public class Manager : MonoBehaviour
         spawner1.RandomSpawn();
         spawner2.RandomSpawn();
         spawner3.RandomSpawn();
+
+        passedCounter = 0;
     }
     private void Update()
     {

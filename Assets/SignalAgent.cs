@@ -23,6 +23,10 @@ public class SignalAgent : Agent
     public override void OnEpisodeBegin()
     {
         Manager.Instance.ResetEnvironment();
+        signalObj1.OnEnvironmentReset();
+        signalObj2.OnEnvironmentReset();
+        signalObj3.OnEnvironmentReset();
+
         Debug.Log("Episode begin");
     }
 
@@ -64,7 +68,6 @@ public class SignalAgent : Agent
 
     void ResetRequested()
     {
-        // Debug.Log("Reseting Environment");
         Manager.Instance.resetRequest = false;
         SetReward(-20);
         EndEpisode();
@@ -72,8 +75,6 @@ public class SignalAgent : Agent
 
     void CarCrossed()
     {
-        // Debug.Log("Car passed");
-        Manager.Instance.passedCounter--;
         SetReward(10);
     }
 }

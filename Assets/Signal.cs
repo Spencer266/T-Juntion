@@ -107,6 +107,16 @@ public class Signal : MonoBehaviour
             OnAvailableChange();
         }
     }
+
+    public void OnEnvironmentReset()
+    {
+        firstSpeed = 0;
+        available = false;
+        GetComponent<Renderer>().material.SetColor("_Color", Color.red);
+        currentTimer = 0;
+        allowDecision = false;
+    }
+
     void FixedUpdate()
     {
         GetSignalInfo();
