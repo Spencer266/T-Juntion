@@ -111,8 +111,8 @@ public class Signal : MonoBehaviour
     public void OnEnvironmentReset()
     {
         firstSpeed = 0;
-        available = false;
-        GetComponent<Renderer>().material.SetColor("_Color", Color.red);
+        available = true;
+        GetComponent<Renderer>().material.SetColor("_Color", Color.green);
         currentTimer = 0;
         allowDecision = false;
     }
