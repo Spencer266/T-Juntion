@@ -37,8 +37,8 @@ public class Signal : MonoBehaviour
     private void Start()
     {
         firstSpeed = 0;
-        available = false;
-        GetComponent<Renderer>().material.SetColor("_Color", Color.red);
+        // available = false;
+        // GetComponent<Renderer>().material.SetColor("_Color", Color.red);
         currentTimer = 0;
         allowDecision = false;
     }
@@ -71,8 +71,8 @@ public class Signal : MonoBehaviour
             if (minDist <= 3 && !allowDecision)
             {
                 allowDecision = true;
-                gameObject.GetComponentInParent<SignalAgent>().RequestDecision();
-                Academy.Instance.EnvironmentStep();
+                /*gameObject.GetComponentInParent<SignalAgent>().RequestDecision();
+                Academy.Instance.EnvironmentStep();*/
             }
             if (minDist > 3)
                 allowDecision = false;
@@ -101,7 +101,7 @@ public class Signal : MonoBehaviour
 
     public void NewSignal(bool value)
     {
-        if (available != value && allowDecision)
+        if (available != value)
         {
             available = value;
             OnAvailableChange();
