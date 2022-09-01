@@ -1,15 +1,17 @@
 import torch
 from torch.optim import Adam
+from torch.distributions import Normal
 import torch.nn.functional as F
 
 from networks import QNetwork, PolicyNetwork
+from buffer import ReplayBuffer
 
 class SAC_NoiseAgent:
-  def __init__(self, env, gamma, tau, alpha, q_lr, policy_lr, a_lr, delay_step, noise_std, noise_bound, buffer_maxlen):
+  def __init__(self, obs_dim, action_dim, gamma, tau, alpha, q_lr, policy_lr, a_lr, delay_step, noise_std, noise_bound, buffer_maxlen):
     self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    self.env = env
-    self.action_range = [env.action_space.low, env.action_space.high]
+    self.obs_dim = obs_dim
+    self.action_dim = action_dim
 
     # Hyperparameter
     self.gamma = gamma    ## Discount rate
@@ -22,15 +24,15 @@ class SAC_NoiseAgent:
 
     # Init network
     ## Critic Net
-    self.q_net1 = QNetwork(env.observation_space.shape[0], env.action_space.shape[0]).to(self.device)
-    self.q_net2 = QNetwork(env.observation_space.shape[0], env.action_space.shape[0]).to(self.device)
+    self.q_net1 = QNetwork(self.obs_dim, self.action_dim).to(self.device)
+    self.q_net2 = QNetwork(self.obs_dim, self.action_dim).to(self.device)
 
     ## Actor Net
-    self.policy_net = PolicyNetwork(env.observation_space.shape[0], env.action_space.shape[0]).to(self.device)
+    self.policy_net = PolicyNetwork(self.obs_dim, self.action_dim).to(self.device)
 
     ## Target Net
-    self.target_net1 = QNetwork(env.observation_space.shape[0], env.action_space.shape[0]).to(self.device)
-    self.target_net2 = QNetwork(env.observation_space.shape[0], env.action_space.shape[0]).to(self.device)
+    self.target_net1 = QNetwork(self.obs_dim, self.action_dim).to(self.device)
+    self.target_net2 = QNetwork(self.obs_dim, self.action_dim).to(self.device)
 
     # Copy params to target
     for target_param, param in zip(self.target_net1.parameters(), self.q_net1.parameters()):
@@ -46,15 +48,18 @@ class SAC_NoiseAgent:
 
     # Entropy
     self.alpha = alpha    ## Tempature param
-    self.target_entropy = -torch.prod(torch.Tensor(self.env.action_space.shape).to(self.device)).item()
+    self.target_entropy = -torch.prod(torch.Tensor(self.action_dim).to(self.device)).item()
     self.log_alpha = torch.zeros(1, requires_grad=True, device=self.device)
     self.alpha_optim = Adam([self.log_alpha], lr=a_lr)
 
     # ReplayBuffer
-    self.replay_buffer = ReplayBuffer(buffer_maxlen)
+    self.replay_buffer = ReplayBuffer(capacity=buffer_maxlen)
 
-  def rescale_action(self, action):
-    return action * (self.action_range[1] - self.action_range[0]) / 2.0 + (self.action_range[1] + self.action_range[0]) / 2.0
+    self.log = {'critic_loss': [], 'policy_loss': [], 'entropy_loss': []}
+
+
+  # def rescale_action(self, action):
+  #   return action * (self.action_range[1] - self.action_range[0]) / 2.0 + (self.action_range[1] + self.action_range[0]) / 2.0
 
   # From TD3  
   def generate_action_space_noise(self, action_batch):
@@ -71,7 +76,7 @@ class SAC_NoiseAgent:
     action = torch.tanh(z)
     action = action.cpu().detach().squeeze(0).numpy()
 
-    return self.rescale_action(action)
+    return action
 
   def update(self, batch_size):
     states, actions, rewards, next_states, dones = self.replay_buffer.sample(batch_size)
@@ -97,6 +102,7 @@ class SAC_NoiseAgent:
     curr_q2 = self.q_net2.forward(states, actions)
     q1_loss = F.mse_loss(curr_q1, expected_q.detach())
     q2_loss = F.mse_loss(curr_q2, expected_q.detach())
+    critic_loss = q1_loss + q2_loss
 
     # Update Q networks
     self.q1_optimizer.zero_grad()
@@ -125,6 +131,9 @@ class SAC_NoiseAgent:
       for target_param, param in zip(self.target_net2.parameters(), self.q_net2.parameters()):
         target_param.data.copy_(self.tau * param.data + (1 - self.tau) * target_param.data)
 
+      self.log['policy_loss'].append(policy_loss.item())
+      self.log['critic_loss'].append(critic_loss.item())
+
     # Update tempature
     alpha_loss = (self.log_alpha * (-log_pi - self.target_entropy).detach()).mean()
 
@@ -132,5 +141,7 @@ class SAC_NoiseAgent:
     alpha_loss.backward()
     self.alpha_optim.step()
     self.alpha = self.log_alpha.exp()
+
+    self.log['entropy_loss'].append(alpha_loss.item())
 
     self.update_step += 1
