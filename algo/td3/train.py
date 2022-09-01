@@ -18,6 +18,9 @@ channel.set_configuration_parameters(time_scale=3.0)
 
 env = UnityToGymWrapper(unity_env, uint8_visual=True, flatten_branched=True)
 
+state_dim = len(env.observation_space)
+action_dim = env.action_size
+
 print(env.action_space)
 print(env.action_space.shape)
 print(env._action_space.n)
@@ -30,12 +33,13 @@ noise_std = 0.2
 noise_bound = 0.5
 delay_step = 2
 buffer_maxlen = 1000000
+max_step = 1000
 
 max_episode = 2000
 
-agent = TD3Agent(env, gamma, tau, buffer_maxlen, delay_step, noise_std, noise_bound, critic_lr, actor_lr)
+agent = TD3Agent(state_dim, action_dim, gamma, tau, buffer_maxlen, delay_step, noise_std, noise_bound, critic_lr, actor_lr)
 
-def td3_train(env, agent, max_episode, max_step, batch_size):
+def td3_train(max_episode, max_step, batch_size):
   episode_rewards = []
 
   for episode in range(max_episode):
@@ -64,7 +68,7 @@ def td3_train(env, agent, max_episode, max_step, batch_size):
 
   return episode_rewards
 
-episode_rewards = td3_train(env, agent, max_episode, 500, 128)
+episode_rewards = td3_train(max_episode, max_step, 128)
 
 q_loss = agent.log['critic_loss']
 p_loss = agent.log['policy_loss']

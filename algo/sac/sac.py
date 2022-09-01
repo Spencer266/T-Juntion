@@ -1,20 +1,18 @@
 import torch
 from torch.optim import Adam
-from torch.distributions import Normal
 import torch.nn.functional as F
-import numpy as np
 
 from networks import QNetwork, PolicyNetwork
 from buffer import ReplayBuffer
 
 class SACAgent:
-  def __init__(self, env, gamma, tau, alpha, critic_lr, actor_lr, a_lr, buffer_maxlen, delay_step):
+  def __init__(self, obs_dim, action_space, gamma, tau, alpha, critic_lr, actor_lr, a_lr, buffer_maxlen, delay_step):
     self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    self.env = env
     # self.action_range = [env.action_space.low, env.action_space.high]
-    self.obs_dim = env.observation_space.shape[0]
-    self.action_dim = env.action_space.shape[0]
+    self.obs_dim = obs_dim
+    self.action_dim = action_space.n
+    self.action_space = action_space
 
     # Hyperparameter
     self.gamma = gamma    ## Discount rate
@@ -49,12 +47,14 @@ class SACAgent:
 
     # Entropy
     self.alpha = alpha    ## Tempature param
-    self.target_entropy = -torch.prod(torch.Tensor(self.env.action_space.shape).to(self.device)).item()
+    self.target_entropy = -torch.prod(torch.Tensor(self.action_dim).to(self.device)).item()
     self.log_alpha = torch.zeros(1, requires_grad=True, device=self.device)
     self.alpha_optim = Adam([self.log_alpha], lr=a_lr)
 
     # ReplayBuffer
     self.replay_buffer = ReplayBuffer(capacity=buffer_maxlen)
+
+    self.log = {'critic_loss': [], 'policy_loss': [], 'entropy_loss': []}
 
   # def rescale_action(self, action):
   #   return action * (self.action_range[1] - self.action_range[0]) / 2.0 + (self.action_range[1] + self.action_range[0]) / 2.0
@@ -94,6 +94,7 @@ class SACAgent:
     curr_q2 = self.critic2.forward(states, actions)
     q1_loss = F.mse_loss(curr_q1, expected_q.detach())
     q2_loss = F.mse_loss(curr_q2, expected_q.detach())
+    critic_loss = q1_loss + q2_loss
 
     # Update Q networks
     self.critic1_optim.zero_grad()
@@ -118,6 +119,9 @@ class SACAgent:
       # Target network
       self.update_targets()
 
+      self.log['policy_loss'].append(policy_loss.item())
+      self.log['critic_loss'].append(critic_loss.item())
+
     # Update tempature
     alpha_loss = (self.log_alpha * (-log_pi - self.target_entropy).detach()).mean()
 
@@ -125,5 +129,7 @@ class SACAgent:
     alpha_loss.backward()
     self.alpha_optim.step()
     self.alpha = self.log_alpha.exp()
+
+    self.log['entropy_loss'].append(alpha_loss.item())
 
     self.update_step += 1

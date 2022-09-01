@@ -30,9 +30,11 @@ buffer_maxlen = 1000000
 
 max_episode = 2000
 
-agent = DiscreteSAC(env, gamma, tau, q_lr, policy_lr, a_lr, buffer_maxlen)
+max_step = 1000
 
-def discrete_sac_train(env, agent, max_episode, max_step, batch_size):
+agent = DiscreteSAC(state_dim, action_dim, gamma, tau, q_lr, policy_lr, a_lr, buffer_maxlen)
+
+def discrete_sac_train(max_episode, max_step, batch_size):
   episode_rewards = []
   update_step = 0
 
@@ -42,7 +44,6 @@ def discrete_sac_train(env, agent, max_episode, max_step, batch_size):
 
     for step in range(max_step):
       action = agent.get_action(state)
-      print(action)
       next_state, reward, done, _ = env.step(action)
       agent.replay_buffer.push(state, action, reward, next_state, done)
       episode_reward += reward
@@ -62,7 +63,7 @@ def discrete_sac_train(env, agent, max_episode, max_step, batch_size):
 
   return episode_rewards
 
-episode_rewards = discrete_sac_train(env, agent, max_episode, 500, 64)
+episode_rewards = discrete_sac_train(max_episode, max_step, 128)
 
 q_loss = agent.log['critic_loss']
 p_loss = agent.log['policy_loss']

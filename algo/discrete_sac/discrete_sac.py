@@ -10,12 +10,11 @@ from networks import Network
 from buffer import ReplayBuffer
 
 class DiscreteSAC:
-  def __init__(self, env, gamma, tau, 
+  def __init__(self, state_dim, action_dim, gamma, tau, 
                q_lr, policy_lr, a_lr, buffer_maxlen, hidden_dim=256, device=torch.device( "cuda" if torch.cuda.is_available() else "cpu")):
-    self.env = env
     self.device = device
-    self.state_dim = self.env.observation_space.shape[0]
-    self.action_dim = self.env.action_space.n
+    self.state_dim = state_dim
+    self.action_dim = action_dim
 
     # Hyperparameter
     self.gamma = gamma
@@ -139,9 +138,9 @@ class DiscreteSAC:
       self.alpha_optim.step()
       self.alpha = self.log_alpha.exp()
 
-      self.log['critic_loss'].append(critic_loss)
-      self.log['policy_loss'].append(actor_loss)
-      self.log['entropy_loss'].append(alpha_loss)
+      self.log['critic_loss'].append(critic_loss.item())
+      self.log['policy_loss'].append(actor_loss.item())
+      self.log['entropy_loss'].append(alpha_loss.item())
 
       for target_param, param in zip(self.critic1_target.parameters(), self.critic1.parameters()):
         target_param.data.copy_(target_param.data * (1.0 - self.tau) + param.data * self.tau)

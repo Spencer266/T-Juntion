@@ -6,9 +6,10 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../'))
 from mlagents_envs.environment import UnityEnvironment
 from mlagents_envs.side_channel.engine_configuration_channel import EngineConfigurationChannel
 from gym_unity.envs import UnityToGymWrapper
+import numpy as np
 
 from sac import SACAgent
-from plotting.plot import plot_hundred, plot_ten
+from plotting.plot import plot_hundred, plot_ten, plot_loss
 
 channel = EngineConfigurationChannel()
 
@@ -17,8 +18,8 @@ channel.set_configuration_parameters(time_scale=3.0)
 
 env = UnityToGymWrapper(unity_env, uint8_visual=True)
 
-print(env.action_space)
-print(env.action_space.shape)
+obs_dim = env.observation_space.shape[0]
+action_space = env.action_space
 
 gamma = 0.99
 tau = 0.01
@@ -29,12 +30,12 @@ actor_lr = 1e-3
 delay_step = 2
 buffer_maxlen = 1000000
 
-max_episode = 2000
-max_step = 5000
+max_episode = 1000
+max_step = 500
 
-agent = SACAgent(env, gamma, tau, alpha, critic_lr, actor_lr, a_lr, buffer_maxlen, delay_step)
+agent = SACAgent(obs_dim, action_space, gamma, tau, alpha, critic_lr, actor_lr, a_lr, buffer_maxlen, delay_step)
 
-def sac_train(env, agent, max_episode, max_step, batch_size):
+def sac_train(max_episode, max_step, batch_size):
   episode_rewards = []
 
   for episode in range(max_episode):
@@ -43,7 +44,7 @@ def sac_train(env, agent, max_episode, max_step, batch_size):
 
     for step in range(max_step):
       action = agent.get_action(state)
-      next_state, reward, done, _ = env.step(action)
+      next_state, reward, done, _ = env.step(np.argmax(action))
       agent.replay_buffer.push(state, action, reward, next_state, done)
       episode_reward += reward
 
@@ -63,7 +64,14 @@ def sac_train(env, agent, max_episode, max_step, batch_size):
 
   return episode_rewards
 
-episode_rewards = sac_train(env, agent, max_episode, max_step, 128)
+episode_rewards = sac_train(max_episode, max_step, 128)
+
+q_loss = agent.log['critic_loss']
+p_loss = agent.log['policy_loss']
+entropy_loss = agent.log['entropy_loss']
 
 plot_ten(max_episode, episode_rewards)
 plot_hundred(max_episode, episode_rewards)
+plot_loss(max_episode, q_loss, 'Critic loss')
+plot_loss(max_episode, p_loss, 'Policy loss')
+plot_loss(max_episode, entropy_loss, 'Entropy loss')

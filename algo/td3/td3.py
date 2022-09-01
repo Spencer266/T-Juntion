@@ -6,13 +6,11 @@ from buffer import ReplayBuffer
 from networks import QNetwork, PolicyNetwork
 
 class TD3Agent:
-  def __init__(self, env, gamma, tau, buffer_maxlen, delay_step, noise_std, noise_bound, critic_lr, actor_lr):
+  def __init__(self, state_dim, action_dim, gamma, tau, buffer_maxlen, delay_step, noise_std, noise_bound, critic_lr, actor_lr):
     self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    self.env = env
-
-    self.state_dim = env.observation_space.shape[0]
-    self.action_dim = env.action_space.n
+    self.state_dim = state_dim
+    self.action_dim = action_dim
 
     # Hyperparam
     self.gamma = gamma          # Discount factor
@@ -109,6 +107,6 @@ class TD3Agent:
       self.update_targets()
 
       self.log['critic_loss'].append(critic_loss.item())
-      self.log['policy_loss'].append(policy_gradient)
+      self.log['policy_loss'].append(policy_gradient.item())
   
     self.update_step += 1
