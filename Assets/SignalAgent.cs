@@ -62,7 +62,7 @@ public class SignalAgent : Agent
         signalObj2.NewSignal(comb[1]);
         signalObj3.NewSignal(comb[2]);
 
-        SetReward(-1 * (signalObj1.signalInfo.signalCounter + signalObj2.signalInfo.signalCounter + signalObj3.signalInfo.signalCounter));
+        SetReward(-1 * ((signalObj1.signalInfo.signalCounter + signalObj2.signalInfo.signalCounter + signalObj3.signalInfo.signalCounter) / 3));
         // Reset Request and Car Crossed will be called automatically by events
     }
 

@@ -18,8 +18,8 @@ channel.set_configuration_parameters(time_scale=3.0)
 
 env = UnityToGymWrapper(unity_env, uint8_visual=True, flatten_branched=True)
 
-state_dim = len(env.observation_space)
-action_dim = env.action_size
+state_dim = env.observation_space.shape[0]
+action_dim = env.action_space.n
 
 print(env.action_space)
 print(env.action_space.shape)
@@ -33,9 +33,9 @@ noise_std = 0.2
 noise_bound = 0.5
 delay_step = 2
 buffer_maxlen = 1000000
-max_step = 1000
+max_step = 500
 
-max_episode = 2000
+max_episode = 1000
 
 agent = TD3Agent(state_dim, action_dim, gamma, tau, buffer_maxlen, delay_step, noise_std, noise_bound, critic_lr, actor_lr)
 

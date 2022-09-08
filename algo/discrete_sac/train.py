@@ -18,14 +18,14 @@ channel.set_configuration_parameters(time_scale=3.0)
 
 env = UnityToGymWrapper(unity_env, True)
 
-state_dim = env._observation_space.shape[0]
-action_dim = env._action_space.n
+state_dim = env.observation_space.shape[0]
+action_dim = env.action_space.n
 
 gamma = 0.99
 tau = 0.01
-a_lr = 3e-4
-q_lr = 3e-4
-policy_lr = 3e-4
+a_lr = 1e-3
+q_lr = 1e-3
+policy_lr = 1e-3
 buffer_maxlen = 1000000
 
 max_episode = 2000
