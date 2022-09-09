@@ -2211,6 +2211,7 @@ MonoBehaviour:
   signalObj1: {fileID: 1033542615}
   signalObj2: {fileID: 1918114837}
   signalObj3: {fileID: 2081228141}
+  config: {fileID: 11400000, guid: 72b3989f88bf11841976e468a44ac1ab, type: 2}
 --- !u!1001 &1763706655
 PrefabInstance:
   m_ObjectHideFlags: 0

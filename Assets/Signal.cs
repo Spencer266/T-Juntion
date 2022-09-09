@@ -6,7 +6,7 @@ using Unity.MLAgents;
 
 public struct SignalInfo
 {
-    public float timerOn;
+    public float timerOn; // store the time the signal has been red, 0 if green
     public float signalTimer;
     public bool signalState;
     public int signalCounter;

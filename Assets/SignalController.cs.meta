@@ -3,7 +3,11 @@ guid: 06bc149c980503941b2a03b9f4ff8018
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - signalObj1: {instanceID: 0}
+  - signalObj2: {instanceID: 0}
+  - signalObj3: {instanceID: 0}
+  - config: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

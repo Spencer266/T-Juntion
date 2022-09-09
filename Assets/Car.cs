@@ -145,7 +145,7 @@ public class Car : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("car"))
         {
-            Manager.Instance.UpdateResetRequest(true);
+            Manager.Instance.UpdateResetRequest(false);
         }
 
         if (collision.gameObject.CompareTag("destroyer"))

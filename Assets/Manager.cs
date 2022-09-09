@@ -10,6 +10,7 @@ public class Manager : MonoBehaviour
     public bool resetRequest;
     public int passedCounter;
 
+    public static event Action Crashed;
     public static event Action ResetRequestChanged;
     public static event Action PassedCounterChanged;
 
@@ -26,8 +27,21 @@ public class Manager : MonoBehaviour
 
     public void UpdateResetRequest(bool state)
     {
-        resetRequest = state;
-        ResetRequestChanged?.Invoke();
+        if (!resetRequest == state)
+        {
+            if (state == false)
+            {
+                Crashed?.Invoke();
+            }
+
+            ResetEnvironment();
+            resetRequest = false;
+            ResetRequestChanged?.Invoke();
+        }
+        else
+        {
+            resetRequest = true;
+        }
     }
 
     public void UpdateCarPassed()
