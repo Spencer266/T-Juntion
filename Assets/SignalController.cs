@@ -1,3 +1,4 @@
+using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -19,6 +20,9 @@ public class SignalController : MonoBehaviour
     private float step_rewards;
     private float ep_rewards;
 
+    private StreamWriter writer;
+    private string filePath;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -33,6 +37,10 @@ public class SignalController : MonoBehaviour
         step_rewards = 0;
         ep_rewards = 0;
         OnReset();
+
+        filePath = "data/rewards.csv";
+        writer = new StreamWriter(filePath, false);
+        writer.WriteLine("Episode, Reward");
     }
 
     void OnReset()
@@ -43,13 +51,12 @@ public class SignalController : MonoBehaviour
         step = 0;
         timer = 0;
         episode++;
-        // Debug.Log("Episode: " + episode + " " + gameObject.name);
     }
 
     void Crashed()
     {
         AddReward(config.CrashReward);
-        Debug.Log($"Episode {episode}: {ep_rewards}");
+        WriteDataToFile(episode, ep_rewards);
         ep_rewards = 0;
     }
 
@@ -68,6 +75,13 @@ public class SignalController : MonoBehaviour
     {
         ep_rewards += (value - step_rewards);
         step_rewards = value;
+    }
+
+    void WriteDataToFile(int ep, float reward)
+    {
+        string content = $"{ep}, {reward}";
+        writer.WriteLine(content);
+        writer.Flush();
     }
 
     void FixedUpdate()
@@ -100,7 +114,7 @@ public class SignalController : MonoBehaviour
         // End episode when reach max step
         if (step >= MaxStep)
         {
-            Debug.Log($"Episode {episode}: {ep_rewards}");
+            WriteDataToFile(episode, ep_rewards);
             ep_rewards = 0;
             Manager.Instance.UpdateResetRequest(true);
         }
@@ -112,6 +126,5 @@ public class SignalController : MonoBehaviour
 
         timer += Time.deltaTime;
 
-        // Debug.Log(Time.timeScale);
     }
 }
