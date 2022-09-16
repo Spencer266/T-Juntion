@@ -28,7 +28,7 @@ q_lr = 1e-3
 policy_lr = 1e-3
 buffer_maxlen = 1000000
 
-max_episode = 2000
+max_episode = 4000
 
 max_step = 1000
 

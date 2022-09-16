@@ -22,6 +22,7 @@ public class SignalAgent : Agent
 
     public override void OnEpisodeBegin()
     {
+        SetReward(0);
         Manager.Instance.ResetEnvironment();
         signalObj1.OnEnvironmentReset();
         signalObj2.OnEnvironmentReset();
@@ -62,19 +63,19 @@ public class SignalAgent : Agent
         signalObj2.NewSignal(comb[1]);
         signalObj3.NewSignal(comb[2]);
 
-        SetReward(-1 * ((signalObj1.signalInfo.signalCounter + signalObj2.signalInfo.signalCounter + signalObj3.signalInfo.signalCounter) / 3));
+        AddReward(-1 * ((signalObj1.signalInfo.signalCounter + signalObj2.signalInfo.signalCounter + signalObj3.signalInfo.signalCounter) / 3));
         // Reset Request and Car Crossed will be called automatically by events
     }
 
     void ResetRequested()
     {
         Manager.Instance.resetRequest = false;
-        SetReward(-20);
+        AddReward(-20);
         EndEpisode();
     }
 
     void CarCrossed()
     {
-        SetReward(10);
+        AddReward(10);
     }
 }
