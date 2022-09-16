@@ -45,19 +45,25 @@ public class SignalController : MonoBehaviour
 
     void OnReset()
     {
+        signalObj1.OnEnvironmentReset();
+        signalObj2.OnEnvironmentReset();
+        signalObj3.OnEnvironmentReset();
+
         signalObj1.available = true;
         signalObj2.available = false;
         signalObj3.available = false;
+
         step = 0;
         timer = 0;
         episode++;
+        ep_rewards = 0;
     }
 
     void Crashed()
     {
         AddReward(config.CrashReward);
-        WriteDataToFile(episode, ep_rewards);
-        ep_rewards = 0;
+        WriteDataToFile();
+        Debug.Log($"{episode}, {ep_rewards} crashed");
     }
 
     void CarPassed()
@@ -77,9 +83,14 @@ public class SignalController : MonoBehaviour
         step_rewards = value;
     }
 
-    void WriteDataToFile(int ep, float reward)
+    void WriteDataToFile()
     {
-        string content = $"{ep}, {reward}";
+        if (ep_rewards == config.CrashReward)
+        {
+            episode--;
+            return;
+        }
+        string content = $"{episode}, {ep_rewards}";
         writer.WriteLine(content);
         writer.Flush();
     }
@@ -114,8 +125,8 @@ public class SignalController : MonoBehaviour
         // End episode when reach max step
         if (step >= MaxStep)
         {
-            WriteDataToFile(episode, ep_rewards);
-            ep_rewards = 0;
+            WriteDataToFile();
+            Debug.Log($"{episode}, {ep_rewards} maxed episode");
             Manager.Instance.UpdateResetRequest(true);
         }
 
