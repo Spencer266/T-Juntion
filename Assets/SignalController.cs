@@ -111,7 +111,7 @@ public class SignalController : MonoBehaviour
             Debug.Log("Simulation speed: " + Time.timeScale);
         }
 
-        AddReward(config.WaitTimeReward * (signalObj1.signalInfo.timerOn + signalObj2.signalInfo.timerOn + signalObj3.signalInfo.timerOn));
+        AddReward(config.WaitTimeReward * ((signalObj1.signalInfo.timerOn + signalObj2.signalInfo.timerOn + signalObj3.signalInfo.timerOn)/3));
 
         if (timer >= MaxTime)
         {

@@ -8,7 +8,7 @@ from gym_unity.envs import UnityToGymWrapper
 import numpy as np
 
 from sac_noise import SAC_NoiseAgent
-from plotting.plot import plot_ten, plot_hundred, plot_loss
+from plotting.plot import plot_avg, plot_ten, plot_loss
 
 channel = EngineConfigurationChannel()
 
@@ -70,8 +70,7 @@ q_loss = agent.log['critic_loss']
 p_loss = agent.log['policy_loss']
 entropy_loss = agent.log['entropy_loss']
 
-plot_ten(max_episode, episode_rewards)
-plot_hundred(max_episode, episode_rewards)
-plot_loss(max_episode, q_loss, 'Critic loss')
-plot_loss(max_episode, p_loss, 'Policy loss')
-plot_loss(max_episode, entropy_loss, 'Entropy loss')
+plot_ten(max_episode, episode_rewards, 'SAC + Noise')
+plot_loss(max_episode, q_loss, 'Critic loss', 'SAC + Noise')
+plot_loss(max_episode, p_loss, 'Policy loss', 'SAC + Noise')
+plot_loss(max_episode, entropy_loss, 'Entropy loss', 'SAC + Noise')

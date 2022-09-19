@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Configuration
   m_EditorClassIdentifier: 
   MaxTimeSwitch: 10
-  MaxStep: 2500
-  MaxEpisode: 20
-  CrashReward: -0.4
-  CarPassedReward: 0.8
-  WaitTimeReward: -0.2
+  MaxStep: 1000
+  MaxEpisode: 4000
+  CrashReward: -20
+  CarPassedReward: 10
+  WaitTimeReward: -1
