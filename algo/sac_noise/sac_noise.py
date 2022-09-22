@@ -24,27 +24,27 @@ class SAC_NoiseAgent:
 
     # Init network
     ## Critic Net
-    self.q_net1 = QNetwork(self.obs_dim, self.action_dim).to(self.device)
-    self.q_net2 = QNetwork(self.obs_dim, self.action_dim).to(self.device)
+    self.critic1 = QNetwork(self.obs_dim, self.action_dim).to(self.device)
+    self.critic2 = QNetwork(self.obs_dim, self.action_dim).to(self.device)
 
     ## Actor Net
     self.policy_net = PolicyNetwork(self.obs_dim, self.action_dim).to(self.device)
 
     ## Target Net
-    self.target_net1 = QNetwork(self.obs_dim, self.action_dim).to(self.device)
-    self.target_net2 = QNetwork(self.obs_dim, self.action_dim).to(self.device)
+    self.critic1_target = QNetwork(self.obs_dim, self.action_dim).to(self.device)
+    self.critic2_target = QNetwork(self.obs_dim, self.action_dim).to(self.device)
 
     # Copy params to target
-    for target_param, param in zip(self.target_net1.parameters(), self.q_net1.parameters()):
+    for target_param, param in zip(self.critic1_target.parameters(), self.critic1.parameters()):
       target_param.data.copy_(param.data)
 
-    for target_param, param in zip(self.target_net2.parameters(), self.q_net2.parameters()):
+    for target_param, param in zip(self.critic2_target.parameters(), self.critic2.parameters()):
       target_param.data.copy_(param.data)
 
     # Init optimizers
-    self.q1_optimizer = Adam(self.q_net1.parameters(), lr=q_lr)
-    self.q2_optimizer = Adam(self.q_net2.parameters(), lr=q_lr)
-    self.policy_optimizer = Adam(self.policy_net.parameters(), lr=policy_lr)
+    self.critic1_optim = Adam(self.critic1.parameters(), lr=q_lr)
+    self.critic2_optim = Adam(self.critic2.parameters(), lr=q_lr)
+    self.actor_optim = Adam(self.policy_net.parameters(), lr=policy_lr)
 
     # Entropy
     self.alpha = alpha    ## Tempature param
@@ -78,6 +78,13 @@ class SAC_NoiseAgent:
 
     return action
 
+  def update_targets(self):
+    for target_param, param in zip(self.critic1_target.parameters(), self.critic1.parameters()):
+      target_param.data.copy_(param.data * self.tau + target_param.data * (1.0 - self.tau))
+
+    for target_param, param in zip(self.critic2_target.parameters(), self.critic2.parameters()):
+      target_param.data.copy_(param.data * self.tau + target_param.data * (1.0 - self.tau))
+
   def update(self, batch_size):
     states, actions, rewards, next_states, dones = self.replay_buffer.sample(batch_size)
 
@@ -92,47 +99,43 @@ class SAC_NoiseAgent:
 
     next_actions, next_log_pi, _ = self.policy_net.sample(next_states)
     next_actions = next_actions + action_space_noise
-    next_q1 = self.target_net1(next_states, next_actions)
-    next_q2 = self.target_net2(next_states, next_actions)
+    next_q1 = self.critic1_target(next_states, next_actions)
+    next_q2 = self.critic2_target(next_states, next_actions)
     next_q_target = torch.min(next_q1, next_q2) - self.alpha * next_log_pi
     expected_q = rewards + (1 - dones) * self.gamma * next_q_target
 
     # Calculate q loss
-    curr_q1 = self.q_net1.forward(states, actions)
-    curr_q2 = self.q_net2.forward(states, actions)
+    curr_q1 = self.critic1.forward(states, actions)
+    curr_q2 = self.critic2.forward(states, actions)
     q1_loss = F.mse_loss(curr_q1, expected_q.detach())
     q2_loss = F.mse_loss(curr_q2, expected_q.detach())
     critic_loss = q1_loss + q2_loss
 
     # Update Q networks
-    self.q1_optimizer.zero_grad()
+    self.critic1_optim.zero_grad()
     q1_loss.backward()
-    self.q1_optimizer.step()
+    self.critic1_optim.step()
 
-    self.q2_optimizer.zero_grad()
+    self.critic2_optim.zero_grad()
     q2_loss.backward()
-    self.q2_optimizer.step()
+    self.critic2_optim.step()
 
     # Delayed update for policy network and target q network
     new_actions, log_pi, _ = self.policy_net.sample(states)
     if self.update_step % self.delay_step == 0:
-      min_q = torch.min(self.q_net1.forward(states, new_actions), 
-                        self.q_net2.forward(states, new_actions))
+      min_q = torch.min(self.critic1.forward(states, new_actions), 
+                        self.critic2.forward(states, new_actions))
       policy_loss = (self.alpha * log_pi - min_q).mean()
       
-      self.policy_optimizer.zero_grad()
+      self.actor_optim.zero_grad()
       policy_loss.backward()
-      self.policy_optimizer.step()
+      self.actor_optim.step()
 
       # Target network
-      for target_param, param in zip(self.target_net1.parameters(), self.q_net1.parameters()):
-        target_param.data.copy_(self.tau * param.data + (1 - self.tau) * target_param.data)
-
-      for target_param, param in zip(self.target_net2.parameters(), self.q_net2.parameters()):
-        target_param.data.copy_(self.tau * param.data + (1 - self.tau) * target_param.data)
+      self.update_targets()
 
       self.log['policy_loss'].append(policy_loss.item())
-      self.log['critic_loss'].append(critic_loss.item())
+    self.log['critic_loss'].append(critic_loss.item())
 
     # Update tempature
     alpha_loss = (self.log_alpha * (-log_pi - self.target_entropy).detach()).mean()

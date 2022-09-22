@@ -8,7 +8,8 @@ from gym_unity.envs import UnityToGymWrapper
 import numpy as np
 
 from sac_noise import SAC_NoiseAgent
-from plotting.plot import plot_ten, plot_hundred, plot_loss
+from plotting.plot import plot_ten, plot_avg, plot_loss
+from utils.write import writeListToFile
 
 channel = EngineConfigurationChannel()
 
@@ -24,8 +25,8 @@ gamma = 0.99
 tau = 0.01
 alpha = 0.2
 a_lr = 1e-3
-q_lr = 1e-3
-p_lr = 1e-3
+q_lr = 1e-4
+p_lr = 1e-4
 noise_std = 0.2
 noise_bound = 0.5
 delay_step = 2
@@ -38,7 +39,6 @@ agent = SAC_NoiseAgent(obs_dim, action_dim, gamma, tau, alpha, q_lr, p_lr, a_lr,
 
 def sac_noise_train(max_episode, max_step, batch_size):
   episode_rewards = []
-  update_step = 0
 
   for episode in range(max_episode):
     state = env.reset()
@@ -52,7 +52,6 @@ def sac_noise_train(max_episode, max_step, batch_size):
 
       if len(agent.replay_buffer) > batch_size:
         agent.update(batch_size)
-        update_step += 1
 
       if done or step == max_step - 1:
         episode_rewards.append(episode_reward)
@@ -70,8 +69,13 @@ q_loss = agent.log['critic_loss']
 p_loss = agent.log['policy_loss']
 entropy_loss = agent.log['entropy_loss']
 
-plot_ten(max_episode, episode_rewards)
-plot_hundred(max_episode, episode_rewards)
-plot_loss(max_episode, q_loss, 'Critic loss')
-plot_loss(max_episode, p_loss, 'Policy loss')
-plot_loss(max_episode, entropy_loss, 'Entropy loss')
+writeListToFile(episode_rewards, '../result/sac_noise/nsac_reward.txt')
+writeListToFile(q_loss, '../result/sac_noise/nsac_critic.txt')
+writeListToFile(p_loss, '../result/sac_noise/nsac_actor.txt')
+writeListToFile(entropy_loss, '../result/sac_noise/nsac_entropy.txt')
+
+plot_ten(max_episode, episode_rewards, 'Noisy SAC')
+plot_avg(max_episode, episode_rewards, 'Noisy SAC')
+plot_loss(max_episode, q_loss, 'Critic loss', 'Noisy SAC')
+plot_loss(max_episode, p_loss, 'Policy loss', 'Noisy SAC')
+plot_loss(max_episode, entropy_loss, 'Entropy loss', 'Noisy SAC')

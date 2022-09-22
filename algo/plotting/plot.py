@@ -26,24 +26,19 @@ def plot_loss(max_episode, loss, name, algo_name):
     plt.grid(True)
     plt.show()
 
-def plot_avg(max_episode, episode_rewards, step, algo_name):
-    avgs = []
-    avg_reward = 0
+def plot_avg(max_episode, episode_rewards, env_name):
+    episodes = [i for i in range(max_episode)]
+
+    average_rewards = [0.0 for i in range(max_episode)]
+
     for i in range(max_episode):
-        avg_reward += episode_rewards[i]
-
-        if i % step == 0:
-            avgs.append(avg_reward // step)
-            avg_reward = 0
-
-    scale_ep = max_episode // step
-    plot_step = [i for i in range(scale_ep)]
+      average_rewards[i] = sum(episode_rewards[0:i]) / (i+1)
 
     plt.figure(figsize=(10, 15))
-    plt.plot(plot_step, avgs)
-    plt.title('Average Reward using ' + algo_name)
+    plt.plot(episodes, average_rewards)
+    plt.title('Average reward plot with ' + env_name)
     plt.xlabel("Episode")
-    plt.ylabel("Avg Reward")
+    plt.ylabel("Average Reward")
     plt.grid(True)
     plt.show()
 

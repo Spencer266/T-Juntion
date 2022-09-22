@@ -10,6 +10,7 @@ import numpy as np
 
 from sac import SACAgent
 from plotting.plot import plot_avg, plot_ten, plot_loss
+from utils.write import writeListToFile
 
 channel = EngineConfigurationChannel()
 
@@ -25,13 +26,13 @@ gamma = 0.99
 tau = 0.01
 alpha = 0.2
 a_lr = 1e-3
-critic_lr = 1e-3
-actor_lr = 1e-3
+critic_lr = 1e-4
+actor_lr = 1e-4
 delay_step = 2
 buffer_maxlen = 1000000
 
-max_episode = 300
-max_step = 500
+max_episode = 4000
+max_step = 1000
 
 agent = SACAgent(obs_dim, action_space, gamma, tau, alpha, critic_lr, actor_lr, a_lr, buffer_maxlen, delay_step)
 
@@ -70,9 +71,14 @@ q_loss = agent.log['critic_loss']
 p_loss = agent.log['policy_loss']
 entropy_loss = agent.log['entropy_loss']
 
+writeListToFile(episode_rewards, '../result/sac/sac_reward.txt')
+writeListToFile(q_loss, '../result/sac/sac_critic.txt')
+writeListToFile(p_loss, '../result/sac/sac_actor.txt')
+writeListToFile(entropy_loss, '../result/sac/sac_entropy.txt')
+
 plot_ten(max_episode, episode_rewards, 'SAC')
 
-plot_avg(max_episode, episode_rewards, 10, 'SAC')
+plot_avg(max_episode, episode_rewards, 'SAC')
 
 plot_loss(max_episode, q_loss, 'Critic loss', 'SAC')
 
