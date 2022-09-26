@@ -26,13 +26,13 @@ gamma = 0.99
 tau = 0.01
 alpha = 0.2
 a_lr = 1e-3
-critic_lr = 1e-4
-actor_lr = 1e-4
+critic_lr = 3e-3
+actor_lr = 3e-3
 delay_step = 2
 buffer_maxlen = 1000000
 
-max_episode = 4000
-max_step = 1000
+max_episode = 10000
+max_step = 1500
 
 agent = SACAgent(obs_dim, action_space, gamma, tau, alpha, critic_lr, actor_lr, a_lr, buffer_maxlen, delay_step)
 

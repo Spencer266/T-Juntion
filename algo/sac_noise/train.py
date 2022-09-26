@@ -25,15 +25,15 @@ gamma = 0.99
 tau = 0.01
 alpha = 0.2
 a_lr = 1e-3
-q_lr = 1e-4
-p_lr = 1e-4
+q_lr = 3e-3
+p_lr = 3e-3
 noise_std = 0.2
 noise_bound = 0.5
 delay_step = 2
 buffer_maxlen = 1000000
 
-max_episode = 4000
-max_step = 1000
+max_episode = 10000
+max_step = 1500
 
 agent = SAC_NoiseAgent(obs_dim, action_dim, gamma, tau, alpha, q_lr, p_lr, a_lr, delay_step, noise_std, noise_bound, buffer_maxlen)
 
