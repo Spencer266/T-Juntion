@@ -20,7 +20,7 @@ channel.set_configuration_parameters(time_scale=3.0)
 env = UnityToGymWrapper(unity_env, uint8_visual=True)
 
 obs_dim = env.observation_space.shape[0]
-action_space = env.action_space
+action_dim = env.action_space.n
 
 gamma = 0.99
 tau = 0.01
@@ -31,16 +31,17 @@ actor_lr = 3e-3
 delay_step = 2
 buffer_maxlen = 1000000
 
-max_episode = 10000
+max_episode = 500
 max_step = 1500
 
-agent = SACAgent(obs_dim, action_space, gamma, tau, alpha, critic_lr, actor_lr, a_lr, buffer_maxlen, delay_step)
+agent = SACAgent(obs_dim, action_dim, gamma, tau, alpha, critic_lr, actor_lr, a_lr, buffer_maxlen, delay_step)
 
 def sac_train(max_episode, max_step, batch_size):
   episode_rewards = []
+  max_reward = 0
+  state = env.reset()
 
   for episode in range(max_episode):
-    state = env.reset()
     episode_reward = 0
 
     for step in range(max_step):
@@ -54,9 +55,14 @@ def sac_train(max_episode, max_step, batch_size):
 
       if done or step == max_step - 1:
         episode_rewards.append(episode_reward)
+        env.reset()
         break
       
       state = next_state
+
+    if episode_reward > max_reward:
+      max_reward = episode_reward
+      agent.save_checkpoint()
 
     if episode % 10 == 0:
       print("Episode " + str(episode) + ": " + str(episode_reward))
@@ -71,10 +77,12 @@ q_loss = agent.log['critic_loss']
 p_loss = agent.log['policy_loss']
 entropy_loss = agent.log['entropy_loss']
 
-writeListToFile(episode_rewards, '../result/sac/sac_reward.txt')
-writeListToFile(q_loss, '../result/sac/sac_critic.txt')
-writeListToFile(p_loss, '../result/sac/sac_actor.txt')
-writeListToFile(entropy_loss, '../result/sac/sac_entropy.txt')
+# writeListToFile(episode_rewards, '../result/sac/sac_reward.txt')
+# writeListToFile(q_loss, '../result/sac/sac_critic.txt')
+# writeListToFile(p_loss, '../result/sac/sac_actor.txt')
+# writeListToFile(entropy_loss, '../result/sac/sac_entropy.txt')
+
+
 
 plot_ten(max_episode, episode_rewards, 'SAC')
 

@@ -12,6 +12,14 @@ public class SignalAgent : Agent
     [SerializeField] Signal signalObj2;
     [SerializeField] Signal signalObj3;
 
+    public override void Initialize()
+    {
+        if (!Academy.Instance.IsCommunicatorOn)
+        {
+            this.MaxStep = 0;
+        }
+    }
+
     // Start is called before the first frame update
     void Start()
     {

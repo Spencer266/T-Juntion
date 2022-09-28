@@ -2212,7 +2212,7 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 1000
+  MaxStep: 1500
   signalObj1: {fileID: 1033542615}
   signalObj2: {fileID: 1918114837}
   signalObj3: {fileID: 2081228141}

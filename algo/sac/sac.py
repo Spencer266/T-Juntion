@@ -1,3 +1,4 @@
+import os
 import torch
 from torch.optim import Adam
 import torch.nn.functional as F
@@ -6,13 +7,12 @@ from networks import QNetwork, PolicyNetwork
 from buffer import ReplayBuffer
 
 class SACAgent:
-  def __init__(self, obs_dim, action_space, gamma, tau, alpha, critic_lr, actor_lr, a_lr, buffer_maxlen, delay_step):
+  def __init__(self, obs_dim, action_dim, gamma, tau, alpha, critic_lr, actor_lr, a_lr, buffer_maxlen, delay_step):
     self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # self.action_range = [env.action_space.low, env.action_space.high]
     self.obs_dim = obs_dim
-    self.action_dim = action_space.n
-    self.action_space = action_space
+    self.action_dim = action_dim
 
     # Hyperparameter
     self.gamma = gamma    ## Discount rate
@@ -31,7 +31,9 @@ class SACAgent:
     ## Target Net
     self.critic1_target = QNetwork(self.obs_dim, self.action_dim).to(self.device)
     self.critic2_target = QNetwork(self.obs_dim, self.action_dim).to(self.device)
-    self.actor_target = PolicyNetwork(self.obs_dim, self.action_dim).to(self.device)
+
+    self.checkpoint_dir = "./saved_models/"
+    os.makedirs(self.checkpoint_dir, exist_ok=True)
 
     # Copy params to target
     for target_param, param in zip(self.critic1_target.parameters(), self.critic1.parameters()):
@@ -133,3 +135,43 @@ class SACAgent:
     self.log['entropy_loss'].append(alpha_loss.item())
 
     self.update_step += 1
+  
+  def save_checkpoint(self, ckpt_path=None):
+    if ckpt_path is None:
+      ckpt_path = self.checkpoint_dir + "/checkpoint.pkl"
+
+    torch.save({'policy_state_dict': self.actor.state_dict(),
+                'critic1_state_dict': self.critic1.state_dict(),
+                'critic2_state_dict': self.critic2.state_dict(),
+                'critic1_target_state_dict': self.critic1_target.state_dict(),
+                'critic2_target_state_dict': self.critic2_target.state_dict(),
+                'policy_optimizer_state_dict': self.actor_optim.state_dict(),
+                'critic1_optimizer_state_dict': self.critic1_optim.state_dict(),
+                'critic2_optimizer_state_dict': self.critic2_optim.state_dict(),
+                }, ckpt_path)
+    
+    print('Saving model')
+    
+  def load_model(self, ckpt_path=None):
+    if ckpt_path is None:
+      ckpt_path = self.checkpoint_dir
+    if not os.path.exists(ckpt_path):
+      return
+
+    print('Loading models from {}'.format(ckpt_path))
+
+    checkpoint = torch.load(ckpt_path)
+    self.actor.load_state_dict(checkpoint['policy_state_dict'])
+    self.critic1.load_state_dict(checkpoint['critic1_state_dict'])
+    self.critic2.load_state_dict(checkpoint['critic2_state_dict'])
+    self.critic1_target.load_state_dict(checkpoint['critic1_target_state_dict'])
+    self.critic2_target.load_state_dict(checkpoint['critic2_target_state_dict'])
+    self.actor_optim.load_state_dict(checkpoint['policy_optimizer_state_dict'])
+    self.critic1_optim.load_state_dict(checkpoint['critic1_optimizer_state_dict'])
+    self.critic2_optim.load_state_dict(checkpoint['critic2_optimizer_state_dict'])
+
+    self.actor.eval()
+    self.critic1.eval()
+    self.critic2.eval()
+    self.critic1_target.eval()
+    self.critic2_target.eval()
