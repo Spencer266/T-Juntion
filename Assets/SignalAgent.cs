@@ -24,11 +24,12 @@ public class SignalAgent : Agent
     void Start()
     {
         Academy.Instance.AutomaticSteppingEnabled = false;
+        Academy.Instance.OnEnvironmentReset += EpisodeBegin;
         Manager.ResetRequestChanged += ResetRequested;
         Manager.PassedCounterChanged += CarCrossed;
     }
 
-    public override void OnEpisodeBegin()
+    public void EpisodeBegin()
     {
         SetReward(0);
         Manager.Instance.ResetEnvironment();
@@ -39,6 +40,7 @@ public class SignalAgent : Agent
         Debug.Log("Episode begin");
     }
 
+    
     public override void CollectObservations(VectorSensor sensor)
     {
         SignalInfo signalInfo1 = signalObj1.signalInfo;
