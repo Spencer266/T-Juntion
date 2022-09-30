@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,6 +10,9 @@ public class Manager : MonoBehaviour
     public static Manager Instance;
     public bool resetRequest;
     public int passedCounter;
+
+    private Mutex crash = new Mutex();
+    private bool carCrash = false;
 
     public static event Action ResetRequestChanged;
     public static event Action PassedCounterChanged;
@@ -22,12 +26,23 @@ public class Manager : MonoBehaviour
         Instance = this;
         resetRequest = false;
         passedCounter = 0;
+        carCrash = false;
     }
 
     public void UpdateResetRequest(bool state)
     {
-        resetRequest = state;
-        ResetRequestChanged?.Invoke();
+        crash.WaitOne();
+        
+        if (carCrash == false)
+        {
+            ResetRequestChanged?.Invoke();
+            carCrash = true;
+        }
+        else
+        {
+            carCrash = false;
+        }
+        crash.ReleaseMutex();
     }
 
     public void UpdateCarPassed()

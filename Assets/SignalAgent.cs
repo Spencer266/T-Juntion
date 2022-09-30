@@ -12,35 +12,38 @@ public class SignalAgent : Agent
     [SerializeField] Signal signalObj2;
     [SerializeField] Signal signalObj3;
 
-    public override void Initialize()
-    {
-        if (!Academy.Instance.IsCommunicatorOn)
-        {
-            this.MaxStep = 0;
-        }
-    }
+    private float timer;
 
     // Start is called before the first frame update
     void Start()
     {
         Academy.Instance.AutomaticSteppingEnabled = false;
-        Academy.Instance.OnEnvironmentReset += EpisodeBegin;
+        // Academy.Instance.OnEnvironmentReset += HandleEnvReset;
         Manager.ResetRequestChanged += ResetRequested;
         Manager.PassedCounterChanged += CarCrossed;
+
+        timer = 0;
     }
 
-    public void EpisodeBegin()
+    public void HandleEnvReset()
     {
-        SetReward(0);
         Manager.Instance.ResetEnvironment();
         signalObj1.OnEnvironmentReset();
         signalObj2.OnEnvironmentReset();
         signalObj3.OnEnvironmentReset();
 
-        Debug.Log("Episode begin");
     }
 
-    
+    public override void OnEpisodeBegin()
+    {
+        HandleEnvReset();
+        SetReward(0);
+        Debug.Log("Time lapse: " + timer);
+        // Debug.Log("Episode begin");
+
+        timer = 1;
+    }
+
     public override void CollectObservations(VectorSensor sensor)
     {
         SignalInfo signalInfo1 = signalObj1.signalInfo;
@@ -88,4 +91,10 @@ public class SignalAgent : Agent
     {
         AddReward(10);
     }
+
+    private void FixedUpdate()
+    {
+        timer += Time.deltaTime;
+    }
+
 }
