@@ -1,15 +1,11 @@
 using System;
 using System.Threading;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using Unity.MLAgents;
 
 public class Manager : MonoBehaviour
 {
     public static Manager Instance;
     public bool resetRequest;
-    public int passedCounter;
 
     private Mutex crash = new Mutex();
     private bool carCrash = false;
@@ -25,7 +21,6 @@ public class Manager : MonoBehaviour
     {
         Instance = this;
         resetRequest = false;
-        passedCounter = 0;
         carCrash = false;
     }
 
@@ -47,7 +42,6 @@ public class Manager : MonoBehaviour
 
     public void UpdateCarPassed()
     {
-        passedCounter++;
         PassedCounterChanged?.Invoke();
     }
 
@@ -62,11 +56,5 @@ public class Manager : MonoBehaviour
         spawner1.RandomSpawn();
         spawner2.RandomSpawn();
         spawner3.RandomSpawn();
-
-        passedCounter = 0;
-    }
-    private void Update()
-    {
-        
     }
 }

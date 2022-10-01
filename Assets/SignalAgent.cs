@@ -1,10 +1,9 @@
+using System.IO;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
-using UnityEngine.SceneManagement;
 
 public class SignalAgent : Agent
 {
@@ -12,6 +11,9 @@ public class SignalAgent : Agent
     [SerializeField] Signal signalObj2;
     [SerializeField] Signal signalObj3;
 
+    private StreamWriter writer;
+
+    private int passedCounter;
     private float timer;
 
     // Start is called before the first frame update
@@ -22,6 +24,9 @@ public class SignalAgent : Agent
         Manager.ResetRequestChanged += ResetRequested;
         Manager.PassedCounterChanged += CarCrossed;
 
+        writer = new StreamWriter("data/data.csv", false);
+
+        passedCounter = 0;
         timer = 0;
     }
 
@@ -36,12 +41,13 @@ public class SignalAgent : Agent
 
     public override void OnEpisodeBegin()
     {
-        HandleEnvReset();
+        WriteDataToFile();
         SetReward(0);
-        Debug.Log("Time lapse: " + timer);
+        HandleEnvReset();
         // Debug.Log("Episode begin");
 
-        timer = 1;
+        passedCounter = 0;
+        timer = 0;
     }
 
     public override void CollectObservations(VectorSensor sensor)
@@ -82,13 +88,13 @@ public class SignalAgent : Agent
 
     void ResetRequested()
     {
-        Manager.Instance.resetRequest = false;
         AddReward(-20);
         EndEpisode();
     }
 
     void CarCrossed()
     {
+        passedCounter++;
         AddReward(10);
     }
 
@@ -97,4 +103,10 @@ public class SignalAgent : Agent
         timer += Time.deltaTime;
     }
 
+    void WriteDataToFile()
+    {
+        string content = $"{timer}, {passedCounter}";
+        writer.WriteLine(content);
+        writer.Flush();
+    }
 }
