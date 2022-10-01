@@ -12,9 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93b952f53c818fe43920beef8308f080, type: 3}
   m_Name: Configuration
   m_EditorClassIdentifier: 
+<<<<<<< Updated upstream
   MaxTimeSwitch: 10
   MaxStep: 1000
   MaxEpisode: 4000
   CrashReward: -20
   CarPassedReward: 10
   WaitTimeReward: -1
+=======
+  SumTime: 15
+  MaxTimeOn: 10
+  MaxStep: 2500
+  MaxEpisode: 20
+  CrashReward: -0.4
+  CarPassedReward: 0.8
+  WaitTimeReward: -0.2
+>>>>>>> Stashed changes

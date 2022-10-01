@@ -13,10 +13,12 @@ public class SignalController : MonoBehaviour
     private float MaxTime;
     private int MaxStep;
 
+    private float m_timer;
     private float timer;
     private int step;
     private int episode;
 
+    private int passedCounter = 0;
     private float step_rewards;
     private float ep_rewards;
 
@@ -26,16 +28,14 @@ public class SignalController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        MaxTime = config.MaxTimeSwitch;
+        MaxTime = config.SumTime - config.MaxTimeOn;
         MaxStep = config.MaxStep;
 
         Manager.Crashed += Crashed;
         Manager.PassedCounterChanged += CarPassed;
         Manager.ResetRequestChanged += OnReset;
-        timer = 0;
+
         episode = 0;
-        step_rewards = 0;
-        ep_rewards = 0;
         OnReset();
 
         filePath = "data/rewards.csv";
@@ -53,8 +53,10 @@ public class SignalController : MonoBehaviour
         signalObj2.available = false;
         signalObj3.available = false;
 
+        passedCounter = 0;
         step = 0;
         timer = 0;
+        m_timer = 0;
         episode++;
         ep_rewards = 0;
     }
@@ -68,6 +70,7 @@ public class SignalController : MonoBehaviour
 
     void CarPassed()
     {
+        passedCounter++;
         AddReward(config.CarPassedReward);
     }
 
@@ -90,7 +93,7 @@ public class SignalController : MonoBehaviour
             episode--;
             return;
         }
-        string content = $"{episode}, {ep_rewards}";
+        string content = $"{episode}, {m_timer}, {passedCounter}, {ep_rewards}";
         writer.WriteLine(content);
         writer.Flush();
     }
@@ -120,6 +123,7 @@ public class SignalController : MonoBehaviour
             signalObj3.NewSignal(!signalObj3.available);
 
             timer = 0;
+            MaxTime = config.SumTime - MaxTime;
         }
 
         // End episode when reach max step
@@ -136,6 +140,6 @@ public class SignalController : MonoBehaviour
         step++;
 
         timer += Time.deltaTime;
-
+        m_timer += Time.deltaTime;
     }
 }

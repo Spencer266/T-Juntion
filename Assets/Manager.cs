@@ -8,7 +8,6 @@ public class Manager : MonoBehaviour
 {
     public static Manager Instance;
     public bool resetRequest;
-    public int passedCounter;
 
     public static event Action Crashed;
     public static event Action ResetRequestChanged;
@@ -22,7 +21,6 @@ public class Manager : MonoBehaviour
     {
         Instance = this;
         resetRequest = false;
-        passedCounter = 0;
     }
 
     public void UpdateResetRequest(bool state)
@@ -33,7 +31,8 @@ public class Manager : MonoBehaviour
             {
                 Crashed?.Invoke();
             }
-
+            // !!! NOTE TO FIX: Potential bug might happend if ResetEnvironment() is called before
+            // functions triggered by Crashed are done.
             ResetEnvironment();
             resetRequest = false;
             ResetRequestChanged?.Invoke();
@@ -46,7 +45,6 @@ public class Manager : MonoBehaviour
 
     public void UpdateCarPassed()
     {
-        passedCounter++;
         PassedCounterChanged?.Invoke();
     }
 
@@ -61,8 +59,6 @@ public class Manager : MonoBehaviour
         spawner1.RandomSpawn();
         spawner2.RandomSpawn();
         spawner3.RandomSpawn();
-
-        passedCounter = 0;
     }
     private void Update()
     {
