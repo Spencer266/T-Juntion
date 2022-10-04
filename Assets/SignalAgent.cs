@@ -20,7 +20,7 @@ public class SignalAgent : Agent
     void Start()
     {
         Academy.Instance.AutomaticSteppingEnabled = false;
-        // Academy.Instance.OnEnvironmentReset += HandleEnvReset;
+        Academy.Instance.OnEnvironmentReset += HandleEnvReset;
         Manager.ResetRequestChanged += ResetRequested;
         Manager.PassedCounterChanged += CarCrossed;
 
@@ -43,7 +43,6 @@ public class SignalAgent : Agent
     {
         WriteDataToFile();
         SetReward(0);
-        HandleEnvReset();
         // Debug.Log("Episode begin");
 
         passedCounter = 0;

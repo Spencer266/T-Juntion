@@ -109,20 +109,19 @@ class SACAgent:
 
     # Delayed update for policy network and target q network
     new_actions, log_pi, _ = self.actor.sample(states)
-    if self.update_step % self.delay_step == 0:
-      min_q = torch.min(self.critic1.forward(states, new_actions), 
-                        self.critic2.forward(states, new_actions))
-      policy_loss = (self.alpha * log_pi - min_q).mean()
-      
-      self.actor_optim.zero_grad()
-      policy_loss.backward()
-      self.actor_optim.step()
+    min_q = torch.min(self.critic1.forward(states, new_actions), 
+                      self.critic2.forward(states, new_actions))
+    policy_loss = (self.alpha * log_pi - min_q).mean()
+    
+    self.actor_optim.zero_grad()
+    policy_loss.backward()
+    self.actor_optim.step()
 
-      # Target network
-      self.update_targets()
+    # Target network
+    self.update_targets()
 
-      self.log['policy_loss'].append(policy_loss.item())
-      self.log['critic_loss'].append(critic_loss.item())
+    self.log['policy_loss'].append(policy_loss.item())
+    self.log['critic_loss'].append(critic_loss.item())
 
     # Update tempature
     alpha_loss = (self.log_alpha * (-log_pi - self.target_entropy).detach()).mean()

@@ -25,24 +25,24 @@ action_dim = env.action_space.n
 gamma = 0.99
 tau = 0.01
 alpha = 0.2
-a_lr = 1e-3
-critic_lr = 3e-3
-actor_lr = 3e-3
+a_lr = 1e-4
+critic_lr = 3e-4
+actor_lr = 3e-4
 delay_step = 2
 buffer_maxlen = 1000000
 
-max_episode = 500
+max_episode = 2000
 max_step = 1500
 
 agent = SACAgent(obs_dim, action_dim, gamma, tau, alpha, critic_lr, actor_lr, a_lr, buffer_maxlen, delay_step)
 
 def sac_train(max_episode, max_step, batch_size):
   episode_rewards = []
-  max_reward = 0
-  state = env.reset()
 
   for episode in range(max_episode):
     episode_reward = 0
+    max_reward = 0
+    state = env.reset()
 
     for step in range(max_step):
       action = agent.get_action(state)
@@ -55,14 +55,13 @@ def sac_train(max_episode, max_step, batch_size):
 
       if done or step == max_step - 1:
         episode_rewards.append(episode_reward)
-        env.reset()
         break
       
       state = next_state
 
     if episode_reward > max_reward:
-      max_reward = episode_reward
       agent.save_checkpoint()
+      max_reward = episode_reward
 
     if episode % 10 == 0:
       print("Episode " + str(episode) + ": " + str(episode_reward))
