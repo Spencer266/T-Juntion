@@ -87,8 +87,6 @@ public class Car : MonoBehaviour
         {
             Signal collidedSignal = other.gameObject.GetComponent<Signal>();
 
-            if (collidedSignal.available)
-            {
                 if (!entered)
                 {
                     // Randomly pick a moving options
@@ -100,32 +98,10 @@ public class Car : MonoBehaviour
                     oldRotation = transform.localRotation;
 
                     entered = true;
+
+                    obstacleInfront = false;
                 }
-            }
-        }
-    }
-
-    private void OnTriggerStay(Collider other)
-    {
-        if (other.CompareTag("signal"))
-        {
-            Signal collidedSignal = other.gameObject.GetComponent<Signal>();
-
-            if (collidedSignal.available)
-            {
-                if (!entered)
-                {
-                    // Randomly pick a moving options
-                    var rand = new System.Random();
-                    int pick = rand.Next(collidedSignal.direction.Count);
-                    moveOption = collidedSignal.direction[pick];
-
-                    // Save the old rotation for validating new rotation when turning
-                    oldRotation = transform.localRotation;
-
-                    entered = true;
-                }
-            }
+           
         }
     }
 
@@ -134,12 +110,9 @@ public class Car : MonoBehaviour
         if (other.CompareTag("checker"))
         {
             Manager.Instance.UpdateCarPassed();
-        }
-
-        if (other.CompareTag("signal"))
-        {
             entered = false;
         }
+
     }
     private void OnCollisionEnter(Collision collision)
     {
@@ -163,9 +136,9 @@ public class Car : MonoBehaviour
         Debug.DrawRay(origin, direction * detectDistance, Color.red);
         if (Physics.Raycast(detector, out hit, detectDistance))
         {
-            if (hit.collider.tag == "signal")
+            if (hit.collider.CompareTag("signal"))
                 return !hit.collider.gameObject.GetComponent<Signal>().available;
-            else if (hit.collider.tag == "destroyer")
+            else if (hit.collider.CompareTag("destroyer"))
                 return false;
             else
                 return true;

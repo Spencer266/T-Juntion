@@ -4,6 +4,7 @@ using UnityEngine;
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
+using System.Threading;
 
 public class SignalAgent : Agent
 {
@@ -13,6 +14,7 @@ public class SignalAgent : Agent
 
     private StreamWriter writer;
 
+    private readonly Mutex passCount = new Mutex();
     private int passedCounter;
     private float timer;
 
@@ -43,7 +45,11 @@ public class SignalAgent : Agent
     {
         WriteDataToFile();
         SetReward(0);
+<<<<<<< Updated upstream
         // Debug.Log("Episode begin");
+=======
+        HandleEnvReset();
+>>>>>>> Stashed changes
 
         passedCounter = 0;
         timer = 0;
@@ -74,14 +80,22 @@ public class SignalAgent : Agent
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
 
+        // Action space 8: signal independent
         byte act = (byte)actionBuffers.DiscreteActions[0];
         BitArray comb = new BitArray(new byte[] { act });
+
+        // Action space 3:
+        /*int on = actionBuffers.DiscreteActions[0];
+        BitArray comb = new BitArray(3, false);
+        comb[on] = true;*/
 
         signalObj1.NewSignal(comb[0]);
         signalObj2.NewSignal(comb[1]);
         signalObj3.NewSignal(comb[2]);
 
         AddReward(-1 * ((signalObj1.signalInfo.signalCounter + signalObj2.signalInfo.signalCounter + signalObj3.signalInfo.signalCounter) / 3));
+        
+        
         // Reset Request and Car Crossed will be called automatically by events
     }
 
@@ -93,7 +107,9 @@ public class SignalAgent : Agent
 
     void CarCrossed()
     {
+        passCount.WaitOne();
         passedCounter++;
+        passCount.ReleaseMutex();
         AddReward(10);
     }
 
@@ -104,7 +120,8 @@ public class SignalAgent : Agent
 
     void WriteDataToFile()
     {
-        string content = $"{timer}, {passedCounter}";
+        int stops = signalObj1.CummlativeCount + signalObj2.CummlativeCount + signalObj3.CummlativeCount;
+        string content = $"{timer}, {passedCounter}, {stops}";
         writer.WriteLine(content);
         writer.Flush();
     }

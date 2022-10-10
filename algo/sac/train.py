@@ -38,12 +38,21 @@ agent = SACAgent(obs_dim, action_dim, gamma, tau, alpha, critic_lr, actor_lr, a_
 
 def sac_train(max_episode, max_step, batch_size):
   episode_rewards = []
+<<<<<<< Updated upstream
 
   for episode in range(max_episode):
     episode_reward = 0
     max_reward = 0
     state = env.reset()
 
+=======
+  max_reward = 0
+  
+
+  for episode in range(max_episode):
+    episode_reward = 0
+    state = env.reset()
+>>>>>>> Stashed changes
     for step in range(max_step):
       action = agent.get_action(state)
       next_state, reward, done, _ = env.step(np.argmax(action))

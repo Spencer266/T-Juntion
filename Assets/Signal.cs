@@ -29,14 +29,17 @@ public class Signal : MonoBehaviour
     public KeyCode switcher;
     public SignalInfo signalInfo;
     public bool allowDecision;
+    public int CummlativeCount { get { return cummulativeCount; } }
 
     private float currentTimer;
-    private int counter = 0;
+    private int cummulativeCount;
+    private int counter;
     private float firstSpeed;
 
     private void Start()
     {
         firstSpeed = 0;
+        counter = 0;
         available = false;
         GetComponent<Renderer>().material.SetColor("_Color", Color.red);
         currentTimer = 0;
@@ -104,6 +107,7 @@ public class Signal : MonoBehaviour
         if (available != value && allowDecision)
         {
             available = value;
+            cummulativeCount += counter;
             OnAvailableChange();
         }
     }
@@ -115,6 +119,7 @@ public class Signal : MonoBehaviour
         GetComponent<Renderer>().material.SetColor("_Color", Color.green);
         currentTimer = 0;
         allowDecision = false;
+        cummulativeCount = 0;
     }
 
     void FixedUpdate()
