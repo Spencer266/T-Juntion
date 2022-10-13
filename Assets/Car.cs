@@ -39,6 +39,7 @@ public class Car : MonoBehaviour
     private int moveOption = 1;
     private bool entered = false;
     private bool obstacleInfront = false;
+    private bool stopping = false;
 
     void GoForward()
     {
@@ -110,7 +111,7 @@ public class Car : MonoBehaviour
         if (other.CompareTag("checker"))
         {
             Manager.Instance.UpdateCarPassed();
-            entered = false;
+            // entered = false;
         }
 
     }
@@ -182,6 +183,17 @@ public class Car : MonoBehaviour
 
         rearLeft.steerAngle = currentSteerAngle;
         rearRight.steerAngle = currentSteerAngle;
+
+        if (Vector3.Magnitude(GetComponent<Rigidbody>().velocity) <= 0.5f && currentAcceleration == 0)
+        {
+            if (!stopping)
+            {
+                Manager.Instance.ACarStopped();
+                stopping = true;
+            }
+        }
+        else
+            stopping = false;
 
         // Logging
     }

@@ -116,7 +116,7 @@ public class SignalAgent : Agent
 
     void WriteDataToFile()
     {
-        int stops = signalObj1.CummlativeCount + signalObj2.CummlativeCount + signalObj3.CummlativeCount;
+        int stops = Manager.Instance.StopCount;
         string content = $"{timer}, {passedCounter}, {stops}";
         writer.WriteLine(content);
         writer.Flush();

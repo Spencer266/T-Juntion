@@ -6,9 +6,12 @@ public class Manager : MonoBehaviour
 {
     public static Manager Instance;
     public bool resetRequest;
+    public int StopCount { get { return stopCount; } }
 
     private Mutex crash = new Mutex();
+    private readonly Mutex stopMutex = new Mutex();
     private bool carCrash = false;
+    private int stopCount;
 
     public static event Action ResetRequestChanged;
     public static event Action PassedCounterChanged;
@@ -22,6 +25,7 @@ public class Manager : MonoBehaviour
         Instance = this;
         resetRequest = false;
         carCrash = false;
+        stopCount = 0;
     }
 
     public void UpdateResetRequest(bool state)
@@ -40,6 +44,15 @@ public class Manager : MonoBehaviour
         crash.ReleaseMutex();
     }
 
+    public void ACarStopped()
+    {
+        stopMutex.WaitOne();
+
+        stopCount++;
+
+        stopMutex.ReleaseMutex();
+    }
+
     public void UpdateCarPassed()
     {
         PassedCounterChanged?.Invoke();
@@ -53,6 +66,7 @@ public class Manager : MonoBehaviour
             Destroy(carObject);
         }
 
+        stopCount = 0;
         spawner1.RandomSpawn();
         spawner2.RandomSpawn();
         spawner3.RandomSpawn();
