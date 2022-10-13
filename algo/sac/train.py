@@ -31,28 +31,17 @@ actor_lr = 3e-4
 delay_step = 2
 buffer_maxlen = 1000000
 
-max_episode = 2000
-max_step = 1500
+max_episode = 10000
+max_step = 2000
 
 agent = SACAgent(obs_dim, action_dim, gamma, tau, alpha, critic_lr, actor_lr, a_lr, buffer_maxlen, delay_step)
 
 def sac_train(max_episode, max_step, batch_size):
   episode_rewards = []
-<<<<<<< Updated upstream
-
-  for episode in range(max_episode):
-    episode_reward = 0
-    max_reward = 0
-    state = env.reset()
-
-=======
-  max_reward = 0
-  
 
   for episode in range(max_episode):
     episode_reward = 0
     state = env.reset()
->>>>>>> Stashed changes
     for step in range(max_step):
       action = agent.get_action(state)
       next_state, reward, done, _ = env.step(np.argmax(action))
@@ -68,9 +57,7 @@ def sac_train(max_episode, max_step, batch_size):
       
       state = next_state
 
-    if episode_reward > max_reward:
-      agent.save_checkpoint()
-      max_reward = episode_reward
+    agent.save_checkpoint()
 
     if episode % 10 == 0:
       print("Episode " + str(episode) + ": " + str(episode_reward))
@@ -85,12 +72,10 @@ q_loss = agent.log['critic_loss']
 p_loss = agent.log['policy_loss']
 entropy_loss = agent.log['entropy_loss']
 
-# writeListToFile(episode_rewards, '../result/sac/sac_reward.txt')
-# writeListToFile(q_loss, '../result/sac/sac_critic.txt')
-# writeListToFile(p_loss, '../result/sac/sac_actor.txt')
-# writeListToFile(entropy_loss, '../result/sac/sac_entropy.txt')
-
-
+writeListToFile(episode_rewards, '../result/sac/sac_reward.txt')
+writeListToFile(q_loss, '../result/sac/sac_critic.txt')
+writeListToFile(p_loss, '../result/sac/sac_actor.txt')
+writeListToFile(entropy_loss, '../result/sac/sac_entropy.txt')
 
 plot_ten(max_episode, episode_rewards, 'SAC')
 
