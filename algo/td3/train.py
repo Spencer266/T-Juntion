@@ -23,15 +23,15 @@ action_dim = env.action_space.n
 
 gamma = 0.9
 tau = 0.01
-critic_lr = 1e-3
-actor_lr = 1e-3
+critic_lr = 1e-4
+actor_lr = 1e-4
 noise_std = 0.2
 noise_bound = 0.5
 delay_step = 2
 buffer_maxlen = 1000000
-max_step = 1000
+max_step = 2000
 
-max_episode = 4000
+max_episode = 10000
 
 agent = TD3Agent(state_dim, action_dim, gamma, tau, buffer_maxlen, delay_step, noise_std, noise_bound, critic_lr, actor_lr)
 

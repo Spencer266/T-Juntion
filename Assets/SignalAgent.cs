@@ -22,7 +22,7 @@ public class SignalAgent : Agent
     void Start()
     {
         Academy.Instance.AutomaticSteppingEnabled = false;
-        Academy.Instance.OnEnvironmentReset += HandleEnvReset;
+        Academy.Instance.OnEnvironmentReset += EpisodeBegin;
         Manager.ResetRequestChanged += ResetRequested;
         Manager.PassedCounterChanged += CarCrossed;
 
@@ -41,15 +41,11 @@ public class SignalAgent : Agent
 
     }
 
-    public override void OnEpisodeBegin()
+    public void EpisodeBegin()
     {
         WriteDataToFile();
         SetReward(0);
-<<<<<<< Updated upstream
-        // Debug.Log("Episode begin");
-=======
         HandleEnvReset();
->>>>>>> Stashed changes
 
         passedCounter = 0;
         timer = 0;
