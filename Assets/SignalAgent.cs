@@ -22,7 +22,7 @@ public class SignalAgent : Agent
     void Start()
     {
         Academy.Instance.AutomaticSteppingEnabled = false;
-        Academy.Instance.OnEnvironmentReset += EpisodeBegin;
+        // Academy.Instance.OnEnvironmentReset += EpisodeBegin;
         Manager.ResetRequestChanged += ResetRequested;
         Manager.PassedCounterChanged += CarCrossed;
 
@@ -41,7 +41,7 @@ public class SignalAgent : Agent
 
     }
 
-    public void EpisodeBegin()
+    public override void OnEpisodeBegin()
     {
         WriteDataToFile();
         SetReward(0);
@@ -58,19 +58,21 @@ public class SignalAgent : Agent
         SignalInfo signalInfo3 = signalObj3.signalInfo;
 
         sensor.AddObservation(signalInfo1.timerOn);
-        sensor.AddObservation(signalInfo1.signalCounter);
+        //sensor.AddObservation(signalInfo1.signalCounter);
         sensor.AddObservation(signalInfo1.signalState);
         sensor.AddObservation(signalInfo1.firstSpeed);
 
         sensor.AddObservation(signalInfo2.timerOn);
-        sensor.AddObservation(signalInfo2.signalCounter);
+        //sensor.AddObservation(signalInfo2.signalCounter);
         sensor.AddObservation(signalInfo2.signalState);
         sensor.AddObservation(signalInfo2.firstSpeed);
 
         sensor.AddObservation(signalInfo3.timerOn);
-        sensor.AddObservation(signalInfo3.signalCounter);
+        //sensor.AddObservation(signalInfo3.signalCounter);
         sensor.AddObservation(signalInfo3.signalState);
         sensor.AddObservation(signalInfo3.firstSpeed);
+
+        sensor.AddObservation(Manager.Instance.StopCount);
     }
 
     public override void OnActionReceived(ActionBuffers actionBuffers)

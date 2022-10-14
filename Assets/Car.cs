@@ -1,8 +1,5 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+
 struct CarInfo
 {
     public Vector3 objVelocity;
@@ -39,7 +36,7 @@ public class Car : MonoBehaviour
     private int moveOption = 1;
     private bool entered = false;
     private bool obstacleInfront = false;
-    private bool stopping = false;
+    private float running = 0;
 
     void GoForward()
     {
@@ -88,20 +85,20 @@ public class Car : MonoBehaviour
         {
             Signal collidedSignal = other.gameObject.GetComponent<Signal>();
 
-                if (!entered)
-                {
-                    // Randomly pick a moving options
-                    var rand = new System.Random();
-                    int pick = rand.Next(collidedSignal.direction.Count);
-                    moveOption = collidedSignal.direction[pick];
+            if (!entered)
+            {
+                // Randomly pick a moving options
+                var rand = new System.Random();
+                int pick = rand.Next(collidedSignal.direction.Count);
+                moveOption = collidedSignal.direction[pick];
 
-                    // Save the old rotation for validating new rotation when turning
-                    oldRotation = transform.localRotation;
+                // Save the old rotation for validating new rotation when turning
+                oldRotation = transform.localRotation;
 
-                    entered = true;
+                entered = true;
 
-                    obstacleInfront = false;
-                }
+                obstacleInfront = false;
+            }
            
         }
     }
@@ -186,14 +183,13 @@ public class Car : MonoBehaviour
 
         if (Vector3.Magnitude(GetComponent<Rigidbody>().velocity) <= 0.5f && currentAcceleration == 0)
         {
-            if (!stopping)
+            if (running > 1f)
             {
                 Manager.Instance.ACarStopped();
-                stopping = true;
             }
+            running = 0;
         }
-        else
-            stopping = false;
+        running += Time.deltaTime;
 
         // Logging
     }
