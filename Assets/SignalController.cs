@@ -93,7 +93,9 @@ public class SignalController : MonoBehaviour
             episode--;
             return;
         }
-        string content = $"{episode}, {m_timer}, {passedCounter}, {ep_rewards}";
+
+        int stops = Manager.Instance.StopCount;
+        string content = $"{episode}, {m_timer}, {passedCounter}, {stops}";
         writer.WriteLine(content);
         writer.Flush();
     }

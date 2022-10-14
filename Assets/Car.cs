@@ -39,6 +39,7 @@ public class Car : MonoBehaviour
     private int moveOption = 1;
     private bool entered = false;
     private bool obstacleInfront = false;
+    private float running = 0;
 
     void GoForward()
     {
@@ -87,58 +88,30 @@ public class Car : MonoBehaviour
         {
             Signal collidedSignal = other.gameObject.GetComponent<Signal>();
 
-            if (collidedSignal.available)
+            if (!entered)
             {
-                if (!entered)
-                {
-                    // Randomly pick a moving options
-                    var rand = new System.Random();
-                    int pick = rand.Next(collidedSignal.direction.Count);
-                    moveOption = collidedSignal.direction[pick];
+                // Randomly pick a moving options
+                var rand = new System.Random();
+                int pick = rand.Next(collidedSignal.direction.Count);
+                moveOption = collidedSignal.direction[pick];
 
-                    // Save the old rotation for validating new rotation when turning
-                    oldRotation = transform.localRotation;
+                // Save the old rotation for validating new rotation when turning
+                oldRotation = transform.localRotation;
 
-                    entered = true;
-                }
+                entered = true;
+
+                obstacleInfront = false;
             }
         }
     }
 
-    private void OnTriggerStay(Collider other)
-    {
-        if (other.CompareTag("signal"))
-        {
-            Signal collidedSignal = other.gameObject.GetComponent<Signal>();
-
-            if (collidedSignal.available)
-            {
-                if (!entered)
-                {
-                    // Randomly pick a moving options
-                    var rand = new System.Random();
-                    int pick = rand.Next(collidedSignal.direction.Count);
-                    moveOption = collidedSignal.direction[pick];
-
-                    // Save the old rotation for validating new rotation when turning
-                    oldRotation = transform.localRotation;
-
-                    entered = true;
-                }
-            }
-        }
-    }
 
     private void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("checker"))
         {
             Manager.Instance.UpdateCarPassed();
-        }
-
-        if (other.CompareTag("signal"))
-        {
-            entered = false;
+            // enter = false;
         }
     }
     private void OnCollisionEnter(Collision collision)
@@ -210,6 +183,15 @@ public class Car : MonoBehaviour
         rearLeft.steerAngle = currentSteerAngle;
         rearRight.steerAngle = currentSteerAngle;
 
+        if (Vector3.Magnitude(GetComponent<Rigidbody>().velocity) <= 0.5f && currentAcceleration == 0)
+        {
+            if (running > 1f)
+            {
+                Manager.Instance.ACarStopped();
+            }
+            running = 0;
+        }
+        running += Time.deltaTime;
         // Logging
     }
 
