@@ -34,6 +34,7 @@ public class Car : MonoBehaviour
     private Quaternion oldRotation;
     private int steering = 0;
     private int moveOption = 1;
+    private bool passed = false;
     private bool entered = false;
     private bool obstacleInfront = false;
     private float running = 0;
@@ -108,13 +109,13 @@ public class Car : MonoBehaviour
         if (other.CompareTag("checker"))
         {
             Manager.Instance.UpdateCarPassed();
-            // entered = false;
+            passed = true;
         }
 
     }
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("car"))
+        if (collision.gameObject.CompareTag("car") && !passed)
         {
             Manager.Instance.UpdateResetRequest(true);
         }
