@@ -38,6 +38,7 @@ public class Car : MonoBehaviour
     private int steering = 0;
     private int moveOption = 1;
     private bool entered = false;
+    private bool passed = false;
     private bool obstacleInfront = false;
     private float running = 0;
 
@@ -111,12 +112,12 @@ public class Car : MonoBehaviour
         if (other.CompareTag("checker"))
         {
             Manager.Instance.UpdateCarPassed();
-            // enter = false;
+            passed = true;
         }
     }
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("car"))
+        if (collision.gameObject.CompareTag("car") && !passed)
         {
             Manager.Instance.UpdateResetRequest(false);
         }
