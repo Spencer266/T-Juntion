@@ -184,7 +184,7 @@ public class Car : MonoBehaviour
 
         if (Vector3.Magnitude(GetComponent<Rigidbody>().velocity) <= 0.5f && currentAcceleration == 0)
         {
-            if (running > 1f)
+            if (running > 2f)
             {
                 Manager.Instance.ACarStopped();
             }
