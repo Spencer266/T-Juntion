@@ -22,7 +22,7 @@ public class SignalAgent : Agent
     void Start()
     {
         Academy.Instance.AutomaticSteppingEnabled = false;
-        // Academy.Instance.OnEnvironmentReset += EpisodeBegin;
+        Academy.Instance.OnEnvironmentReset += EpisodeBegin;
         Manager.ResetRequestChanged += ResetRequested;
         Manager.PassedCounterChanged += CarCrossed;
 
@@ -41,7 +41,7 @@ public class SignalAgent : Agent
 
     }
 
-    public override void OnEpisodeBegin()
+    public void EpisodeBegin()
     {
         WriteDataToFile();
         SetReward(0);
@@ -77,7 +77,6 @@ public class SignalAgent : Agent
 
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
-
         // Action space 8: signal independent
         byte act = (byte)actionBuffers.DiscreteActions[0];
         BitArray comb = new BitArray(new byte[] { act });
@@ -121,6 +120,7 @@ public class SignalAgent : Agent
         int stops = Manager.Instance.StopCount;
         string content = $"{timer}, {passedCounter}, {stops}";
         writer.WriteLine(content);
+        Debug.Log(content);
         writer.Flush();
     }
 }
