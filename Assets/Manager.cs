@@ -7,11 +7,14 @@ public class Manager : MonoBehaviour
     public static Manager Instance;
     public bool resetRequest;
     public int StopCount { get { return stopCount; } }
+    public float StopTime { get { return accummulatedStopTime; } }
 
-    private Mutex crash = new Mutex();
+    private readonly Mutex crash = new Mutex();
     private readonly Mutex stopMutex = new Mutex();
+    private readonly Mutex stopTimeMutex = new Mutex();
     private bool carCrash = false;
     private int stopCount;
+    private float accummulatedStopTime;
 
     public static event Action ResetRequestChanged;
     public static event Action PassedCounterChanged;
@@ -20,12 +23,13 @@ public class Manager : MonoBehaviour
     [SerializeField] Spawner spawner2;
     [SerializeField] Spawner spawner3;
 
-    void Awake() 
+    void Awake()
     {
         Instance = this;
         resetRequest = false;
         carCrash = false;
         stopCount = 0;
+        accummulatedStopTime = 0;
     }
 
     public void UpdateResetRequest(bool state)
@@ -53,20 +57,34 @@ public class Manager : MonoBehaviour
         stopMutex.ReleaseMutex();
     }
 
+    public void AddStopTime(float amount)
+    {
+        stopTimeMutex.WaitOne();
+
+        accummulatedStopTime += amount;
+
+        stopTimeMutex.ReleaseMutex();
+    }
+
     public void UpdateCarPassed()
     {
         PassedCounterChanged?.Invoke();
     }
 
-    public void ResetEnvironment()
+    public void ClearScene()
     {
         var carObjects = GameObject.FindGameObjectsWithTag("car");
         foreach (var carObject in carObjects)
         {
             Destroy(carObject);
         }
+    }
 
+
+    public void ResetEnvironment()
+    {
         stopCount = 0;
+        accummulatedStopTime = 0;
         spawner1.RandomSpawn();
         spawner2.RandomSpawn();
         spawner3.RandomSpawn();

@@ -43,6 +43,7 @@ public class SignalAgent : Agent
 
     public void EpisodeBegin()
     {
+        Manager.Instance.ClearScene();
         WriteDataToFile();
         SetReward(0);
         HandleEnvReset();
@@ -118,7 +119,8 @@ public class SignalAgent : Agent
     void WriteDataToFile()
     {
         int stops = Manager.Instance.StopCount;
-        string content = $"{timer}, {passedCounter}, {stops}";
+        float stopTime = Manager.Instance.StopTime;
+        string content = $"{timer}, {passedCounter}, {stops}, {stopTime}";
         writer.WriteLine(content);
         Debug.Log(content);
         writer.Flush();

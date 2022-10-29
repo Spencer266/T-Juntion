@@ -1332,9 +1332,17 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 24732896}
     m_Modifications:
+    - target: {fileID: 6012054851744004071, guid: 39d8773e3b9756146a374a2de199f40a, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 9121102274936348122, guid: 39d8773e3b9756146a374a2de199f40a, type: 3}
       propertyPath: steerAngleLeft
       value: 10.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 9121102274936348123, guid: 39d8773e3b9756146a374a2de199f40a, type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9121102276861158855, guid: 39d8773e3b9756146a374a2de199f40a, type: 3}
       propertyPath: m_RootOrder
@@ -2592,6 +2600,7 @@ GameObject:
   - component: {fileID: 1737970086}
   - component: {fileID: 1737970089}
   - component: {fileID: 1737970088}
+  - component: {fileID: 1737970087}
   m_Layer: 0
   m_Name: Signals
   m_TagString: Untagged
@@ -2616,6 +2625,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1737970087
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1737970085}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fa266af88394be43a9d2a9e3c238c34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1737970088
 MonoBehaviour:
   m_ObjectHideFlags: 0

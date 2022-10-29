@@ -38,6 +38,8 @@ public class Car : MonoBehaviour
     private bool entered = false;
     private bool obstacleInfront = false;
     private float running = 0;
+    private float stopTime = 0;
+    public float StopTime { get { return stopTime; } }
 
     void GoForward()
     {
@@ -113,6 +115,7 @@ public class Car : MonoBehaviour
         }
 
     }
+
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("car") && !passed)
@@ -184,15 +187,20 @@ public class Car : MonoBehaviour
 
         if (Vector3.Magnitude(GetComponent<Rigidbody>().velocity) <= 0.5f && currentAcceleration == 0)
         {
-            if (running > 2f)
+            if (running > 3f)
             {
                 Manager.Instance.ACarStopped();
             }
             running = 0;
+            stopTime += Time.deltaTime;
         }
         running += Time.deltaTime;
 
         // Logging
     }
 
+    private void OnDestroy()
+    {
+        Manager.Instance.AddStopTime(stopTime);
+    }
 }
