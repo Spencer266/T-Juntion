@@ -10,10 +10,11 @@ from gym_unity.envs import UnityToGymWrapper
 
 from td3 import TD3Agent
 from plotting.plot import plot_avg, plot_ten, plot_loss
+from utils.write import writeListToFile
 
 channel = EngineConfigurationChannel()
 
-unity_env = UnityEnvironment('../../New folder/Player Control.exe', side_channels=[channel], seed=42, worker_id=1)
+unity_env = UnityEnvironment('../../New folder (2)/Player Control.exe', side_channels=[channel], seed=42, worker_id=1)
 channel.set_configuration_parameters(time_scale=3.0)
 
 env = UnityToGymWrapper(unity_env, uint8_visual=True, flatten_branched=True)
@@ -31,7 +32,7 @@ delay_step = 2
 buffer_maxlen = 1000000
 max_step = 2000
 
-max_episode = 10000
+max_episode = 7000
 
 agent = TD3Agent(state_dim, action_dim, gamma, tau, buffer_maxlen, delay_step, noise_std, noise_bound, critic_lr, actor_lr)
 
@@ -57,6 +58,8 @@ def td3_train(max_episode, max_step, batch_size):
       
       state = next_state
 
+    agent.save_checkpoint()
+
     if episode % 10 == 0:
       print("Episode " + str(episode) + ": " + str(episode_reward))
 
@@ -69,11 +72,15 @@ episode_rewards = td3_train(max_episode, max_step, 128)
 q_loss = agent.log['critic_loss']
 p_loss = agent.log['policy_loss']
 
+writeListToFile(episode_rewards, '../result/td3/td3_reward.txt')
+writeListToFile(q_loss, '../result/td3/td3_critic.txt')
+writeListToFile(p_loss, '../result/td3/td3_actor.txt')
+
 plot_ten(max_episode, episode_rewards)
 
 plot_avg(max_episode, episode_rewards, 10, 'TD3')
 
-plot_loss(max_episode, q_loss, 'Critic loss')
+plot_loss(max_episode, q_loss, 'Critic loss', 'TD3')
 
-plot_loss(max_episode, p_loss, 'Policy loss')
+plot_loss(max_episode, p_loss, 'Policy loss', 'TD3')
 

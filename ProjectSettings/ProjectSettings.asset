@@ -698,11 +698,11 @@ PlayerSettings:
     m_VersionName: 
   apiCompatibilityLevel: 6
   activeInputHandler: 2
-  cloudProjectId: 35a63c92-d0d5-4e1a-b6e6-65b6e221d592
+  cloudProjectId: a247b829-d4ac-4b8c-9727-98ffd9d895a7
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
   projectName: Player Control
-  organizationId: trangthang123hp
+  organizationId: tomhansen2k
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   virtualTexturingSupportEnabled: 0

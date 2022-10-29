@@ -32,7 +32,7 @@ class SACAgent:
     self.critic1_target = QNetwork(self.obs_dim, self.action_dim).to(self.device)
     self.critic2_target = QNetwork(self.obs_dim, self.action_dim).to(self.device)
 
-    self.checkpoint_dir = "./saved_models/"
+    self.checkpoint_dir = "./saved_models"
     os.makedirs(self.checkpoint_dir, exist_ok=True)
 
     # Copy params to target

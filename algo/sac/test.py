@@ -23,15 +23,14 @@ action_dim = env.action_space.n
 gamma = 0.99
 tau = 0.01
 alpha = 0.2
-a_lr = 1e-3
-critic_lr = 3e-3
-actor_lr = 3e-3
-delay_step = 2
+a_lr = 1e-4
+critic_lr = 3e-4
+actor_lr = 3e-4
 buffer_maxlen = 1000000
 
-max_episode = 50
+max_episode = 4000
 
-agent = SACAgent(obs_dim, action_dim, gamma, tau, alpha, critic_lr, actor_lr, a_lr, buffer_maxlen, delay_step)
+agent = SACAgent(obs_dim, action_dim, gamma, tau, alpha, critic_lr, actor_lr, a_lr, buffer_maxlen)
 
 agent.load_model('./saved_models/checkpoint.pkl')
 
@@ -46,8 +45,6 @@ def test(max_episode):
       _, reward, done, _ = env.step(np.argmax(action))
       episode_reward += reward
 
-
-    
     print("Episode " + str(episode) + ": " + str(episode_reward))
 
   env.close()

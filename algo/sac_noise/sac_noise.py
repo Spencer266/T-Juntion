@@ -1,3 +1,4 @@
+import os
 import torch
 from torch.optim import Adam
 from torch.distributions import Normal
@@ -7,7 +8,7 @@ from networks import QNetwork, PolicyNetwork
 from buffer import ReplayBuffer
 
 class SAC_NoiseAgent:
-  def __init__(self, obs_dim, action_dim, gamma, tau, alpha, q_lr, policy_lr, a_lr, delay_step, noise_std, noise_bound, buffer_maxlen):
+  def __init__(self, obs_dim, action_dim, gamma, tau, alpha, q_lr, policy_lr, a_lr, noise_std, noise_bound, buffer_maxlen):
     self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     self.obs_dim = obs_dim
@@ -17,7 +18,6 @@ class SAC_NoiseAgent:
     self.gamma = gamma    ## Discount rate
     self.tau = tau      
     self.update_step = 0
-    self.delay_step = delay_step
 
     self.noise_std = noise_std
     self.noise_bound = noise_bound
@@ -33,6 +33,9 @@ class SAC_NoiseAgent:
     ## Target Net
     self.critic1_target = QNetwork(self.obs_dim, self.action_dim).to(self.device)
     self.critic2_target = QNetwork(self.obs_dim, self.action_dim).to(self.device)
+
+    self.checkpoint_dir = "./saved_models"
+    os.makedirs(self.checkpoint_dir, exist_ok=True)
 
     # Copy params to target
     for target_param, param in zip(self.critic1_target.parameters(), self.critic1.parameters()):
@@ -120,21 +123,19 @@ class SAC_NoiseAgent:
     q2_loss.backward()
     self.critic2_optim.step()
 
-    # Delayed update for policy network and target q network
     new_actions, log_pi, _ = self.policy_net.sample(states)
-    if self.update_step % self.delay_step == 0:
-      min_q = torch.min(self.critic1.forward(states, new_actions), 
-                        self.critic2.forward(states, new_actions))
-      policy_loss = (self.alpha * log_pi - min_q).mean()
-      
-      self.actor_optim.zero_grad()
-      policy_loss.backward()
-      self.actor_optim.step()
+    min_q = torch.min(self.critic1.forward(states, new_actions), 
+                      self.critic2.forward(states, new_actions))
+    policy_loss = (self.alpha * log_pi - min_q).mean()
+    
+    self.actor_optim.zero_grad()
+    policy_loss.backward()
+    self.actor_optim.step()
 
-      # Target network
-      self.update_targets()
+    # Target network
+    self.update_targets()
 
-      self.log['policy_loss'].append(policy_loss.item())
+    self.log['policy_loss'].append(policy_loss.item())
     self.log['critic_loss'].append(critic_loss.item())
 
     # Update tempature
@@ -148,3 +149,43 @@ class SAC_NoiseAgent:
     self.log['entropy_loss'].append(alpha_loss.item())
 
     self.update_step += 1
+
+  def save_checkpoint(self, ckpt_path=None):
+    if ckpt_path is None:
+      ckpt_path = self.checkpoint_dir + "/checkpoint.pkl"
+
+    torch.save({'policy_state_dict': self.policy_net.state_dict(),
+                'critic1_state_dict': self.critic1.state_dict(),
+                'critic2_state_dict': self.critic2.state_dict(),
+                'critic1_target_state_dict': self.critic1_target.state_dict(),
+                'critic2_target_state_dict': self.critic2_target.state_dict(),
+                'policy_optimizer_state_dict': self.actor_optim.state_dict(),
+                'critic1_optimizer_state_dict': self.critic1_optim.state_dict(),
+                'critic2_optimizer_state_dict': self.critic2_optim.state_dict(),
+                }, ckpt_path)
+    
+    print('Saving model')
+    
+  def load_model(self, ckpt_path=None):
+    if ckpt_path is None:
+      ckpt_path = self.checkpoint_dir
+    if not os.path.exists(ckpt_path):
+      return
+
+    print('Loading models from {}'.format(ckpt_path))
+
+    checkpoint = torch.load(ckpt_path)
+    self.policy_net.load_state_dict(checkpoint['policy_state_dict'])
+    self.critic1.load_state_dict(checkpoint['critic1_state_dict'])
+    self.critic2.load_state_dict(checkpoint['critic2_state_dict'])
+    self.critic1_target.load_state_dict(checkpoint['critic1_target_state_dict'])
+    self.critic2_target.load_state_dict(checkpoint['critic2_target_state_dict'])
+    self.actor_optim.load_state_dict(checkpoint['policy_optimizer_state_dict'])
+    self.critic1_optim.load_state_dict(checkpoint['critic1_optimizer_state_dict'])
+    self.critic2_optim.load_state_dict(checkpoint['critic2_optimizer_state_dict'])
+
+    self.policy_net.eval()
+    self.critic1.eval()
+    self.critic2.eval()
+    self.critic1_target.eval()
+    self.critic2_target.eval()

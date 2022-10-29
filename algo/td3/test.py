@@ -29,7 +29,7 @@ noise_bound = 0.5
 delay_step = 2
 buffer_maxlen = 1000000
 
-max_episode = 20000
+max_episode = 4000
 
 agent = TD3Agent(state_dim, action_dim, gamma, tau, buffer_maxlen, delay_step, noise_std, noise_bound, critic_lr, actor_lr)
 

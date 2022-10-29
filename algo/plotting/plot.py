@@ -32,7 +32,7 @@ def plot_avg(max_episode, episode_rewards, env_name):
     average_rewards = [0.0 for i in range(max_episode)]
 
     for i in range(max_episode):
-      average_rewards[i] = sum(episode_rewards[0:i]) / (i+1)
+      average_rewards[i] = sum(episode_rewards[0:i+1]) / (i+1)
 
     plt.figure(figsize=(10, 15))
     plt.plot(episodes, average_rewards)

@@ -13,7 +13,7 @@ from utils.write import writeListToFile
 
 channel = EngineConfigurationChannel()
 
-unity_env = UnityEnvironment('../../New folder/Player Control.exe', side_channels=[channel], seed=42, worker_id=1)
+unity_env = UnityEnvironment('../../New folder (2)/Player Control.exe', side_channels=[channel], seed=42, worker_id=1)
 channel.set_configuration_parameters(time_scale=3.0)
 
 env = UnityToGymWrapper(unity_env, uint8_visual=True)
@@ -24,21 +24,22 @@ action_dim = env.action_space.n
 gamma = 0.99
 tau = 0.01
 alpha = 0.2
-a_lr = 1e-3
-q_lr = 3e-3
-p_lr = 3e-3
+a_lr = 1e-4
+q_lr = 3e-4
+p_lr = 3e-4
 noise_std = 0.2
 noise_bound = 0.5
 delay_step = 2
 buffer_maxlen = 1000000
 
-max_episode = 10000
-max_step = 1500
+max_episode = 7000
+max_step = 2000
 
-agent = SAC_NoiseAgent(obs_dim, action_dim, gamma, tau, alpha, q_lr, p_lr, a_lr, delay_step, noise_std, noise_bound, buffer_maxlen)
+agent = SAC_NoiseAgent(obs_dim, action_dim, gamma, tau, alpha, q_lr, p_lr, a_lr, noise_std, noise_bound, buffer_maxlen)
 
 def sac_noise_train(max_episode, max_step, batch_size):
   episode_rewards = []
+  max_reward = 0
 
   for episode in range(max_episode):
     state = env.reset()
@@ -58,6 +59,11 @@ def sac_noise_train(max_episode, max_step, batch_size):
         break
       
       state = next_state
+
+    if episode_reward > max_reward:
+      agent.save_checkpoint()
+      max_reward = episode_reward
+
     if episode % 10 == 0:
       print("Episode " + str(episode) + ": " + str(episode_reward))
 
