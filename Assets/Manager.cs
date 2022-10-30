@@ -7,12 +7,16 @@ public class Manager : MonoBehaviour
     public static Manager Instance;
     public bool resetRequest;
     public int StopCount { get { return stopCount; } }
+    public float StopTime { get { return accummulatedStopTime; } }
 
     private readonly Mutex stopMutex = new Mutex();
+    private readonly Mutex stopTimeMutex = new Mutex();
+
     public static event Action Crashed;
     public static event Action ResetRequestChanged;
     public static event Action PassedCounterChanged;
     private int stopCount;
+    private float accummulatedStopTime;
 
     [SerializeField] Spawner spawner1;
     [SerializeField] Spawner spawner2;
@@ -59,14 +63,27 @@ public class Manager : MonoBehaviour
         PassedCounterChanged?.Invoke();
     }
 
-    public void ResetEnvironment()
+    public void AddStopTime(float amount)
+    {
+        stopTimeMutex.WaitOne();
+
+        accummulatedStopTime += amount;
+
+        stopTimeMutex.ReleaseMutex();
+    }
+
+    public void ClearScene()
     {
         var carObjects = GameObject.FindGameObjectsWithTag("car");
         foreach (var carObject in carObjects)
         {
             Destroy(carObject);
         }
+    }
 
+    public void ResetEnvironment()
+    {
+        accummulatedStopTime = 0;
         stopCount = 0;
         spawner1.RandomSpawn();
         spawner2.RandomSpawn();

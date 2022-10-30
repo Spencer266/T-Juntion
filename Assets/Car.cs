@@ -41,6 +41,7 @@ public class Car : MonoBehaviour
     private bool passed = false;
     private bool obstacleInfront = false;
     private float running = 0;
+    private float stopTime = 0;
 
     void GoForward()
     {
@@ -191,9 +192,14 @@ public class Car : MonoBehaviour
                 Manager.Instance.ACarStopped();
             }
             running = 0;
+            stopTime += Time.deltaTime;
         }
         running += Time.deltaTime;
         // Logging
     }
 
+    private void OnDestroy()
+    {
+        Manager.Instance.AddStopTime(stopTime);
+    }
 }

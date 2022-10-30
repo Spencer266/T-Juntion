@@ -64,6 +64,7 @@ public class SignalController : MonoBehaviour
     void Crashed()
     {
         AddReward(config.CrashReward);
+        Manager.Instance.ClearScene();
         WriteDataToFile();
         Debug.Log($"{episode}, {ep_rewards} crashed");
     }
@@ -93,9 +94,9 @@ public class SignalController : MonoBehaviour
             episode--;
             return;
         }
-
+        float stopTime = Manager.Instance.StopTime;
         int stops = Manager.Instance.StopCount;
-        string content = $"{episode}, {m_timer}, {passedCounter}, {stops}";
+        string content = $"{episode} , {m_timer} , {passedCounter} , {stops} , {stopTime}";
         writer.WriteLine(content);
         writer.Flush();
     }
@@ -131,6 +132,7 @@ public class SignalController : MonoBehaviour
         // End episode when reach max step
         if (step >= MaxStep)
         {
+            Manager.Instance.ClearScene();
             WriteDataToFile();
             Debug.Log($"{episode}, {ep_rewards} maxed episode");
             Manager.Instance.UpdateResetRequest(true);
