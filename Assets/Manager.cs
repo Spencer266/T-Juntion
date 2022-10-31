@@ -6,11 +6,13 @@ public class Manager : MonoBehaviour
 {
     public static Manager Instance;
     public bool resetRequest;
+    private bool crashHandled;
     public int StopCount { get { return stopCount; } }
     public float StopTime { get { return accummulatedStopTime; } }
 
     private readonly Mutex stopMutex = new Mutex();
     private readonly Mutex stopTimeMutex = new Mutex();
+    private readonly Mutex crashHandleMutex = new Mutex();
 
     public static event Action Crashed;
     public static event Action ResetRequestChanged;
@@ -27,11 +29,12 @@ public class Manager : MonoBehaviour
         Instance = this;
         resetRequest = false;
         stopCount = 0;
+        crashHandled = false;
     }
 
     public void UpdateResetRequest(bool state)
     {
-        if (!resetRequest == state)
+        /*if (!resetRequest == state)
         {
             if (state == false)
             {
@@ -46,7 +49,21 @@ public class Manager : MonoBehaviour
         else
         {
             resetRequest = true;
+        }*/
+
+        if (state == false)
+        {
+            crashHandleMutex.WaitOne();
+
+            if (crashHandled == false)
+                Crashed?.Invoke();
+            else
+                crashHandled = false;
+
+            crashHandleMutex.ReleaseMutex();
         }
+        ResetEnvironment();
+        ResetRequestChanged?.Invoke();
     }
 
     public void ACarStopped()

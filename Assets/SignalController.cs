@@ -113,7 +113,7 @@ public class SignalController : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            Time.timeScale = 0.5f;
+            Time.timeScale *= 0.5f;
             Debug.Log("Simulation speed: " + Time.timeScale);
         }
 

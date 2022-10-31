@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93b952f53c818fe43920beef8308f080, type: 3}
   m_Name: Configuration
   m_EditorClassIdentifier: 
-  SumTime: 40
-  MaxTimeOn: 15
+  SumTime: 30
+  MaxTimeOn: 10
   MaxStep: 2000
-  MaxEpisode: 10000
+  MaxEpisode: 7000
   CrashReward: -20
   CarPassedReward: 10
   WaitTimeReward: 1
