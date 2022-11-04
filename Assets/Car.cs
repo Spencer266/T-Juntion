@@ -120,7 +120,8 @@ public class Car : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("car") && !passed)
         {
-            Manager.Instance.UpdateResetRequest(true);
+            Manager.Instance.AddStopTime(stopTime);
+            Manager.Instance.CrashHandle();
         }
 
         if (collision.gameObject.CompareTag("destroyer"))
@@ -187,7 +188,7 @@ public class Car : MonoBehaviour
 
         if (Vector3.Magnitude(GetComponent<Rigidbody>().velocity) <= 0.5f && currentAcceleration == 0)
         {
-            if (running > 3f)
+            if (running > 2f)
             {
                 Manager.Instance.ACarStopped();
             }
@@ -197,10 +198,5 @@ public class Car : MonoBehaviour
         running += Time.deltaTime;
 
         // Logging
-    }
-
-    private void OnDestroy()
-    {
-        Manager.Instance.AddStopTime(stopTime);
     }
 }

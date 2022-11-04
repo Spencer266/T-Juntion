@@ -12,44 +12,28 @@ public class SignalAgent : Agent
     [SerializeField] Signal signalObj2;
     [SerializeField] Signal signalObj3;
 
-    private StreamWriter writer;
-
-    private readonly Mutex passCount = new Mutex();
-    private int passedCounter;
-    private float timer;
-
     // Start is called before the first frame update
     void Start()
     {
         Academy.Instance.AutomaticSteppingEnabled = false;
+
         Academy.Instance.OnEnvironmentReset += EpisodeBegin;
-        Manager.ResetRequestChanged += ResetRequested;
+        Manager.CarCrashed += Crashed;
         Manager.PassedCounterChanged += CarCrossed;
-
-        writer = new StreamWriter("data/data.csv", false);
-
-        passedCounter = 0;
-        timer = 0;
     }
 
     public void HandleEnvReset()
     {
-        Manager.Instance.ResetEnvironment();
         signalObj1.OnEnvironmentReset();
         signalObj2.OnEnvironmentReset();
         signalObj3.OnEnvironmentReset();
-
     }
 
     public void EpisodeBegin()
     {
-        Manager.Instance.ClearScene();
-        WriteDataToFile();
+        Manager.Instance.OnNewEpisode();
         SetReward(0);
         HandleEnvReset();
-
-        passedCounter = 0;
-        timer = 0;
     }
 
     public override void CollectObservations(VectorSensor sensor)
@@ -97,7 +81,7 @@ public class SignalAgent : Agent
         // Reset Request and Car Crossed will be called automatically by events
     }
 
-    void ResetRequested()
+    void Crashed()
     {
         AddReward(-20);
         EndEpisode();
@@ -105,24 +89,11 @@ public class SignalAgent : Agent
 
     void CarCrossed()
     {
-        passCount.WaitOne();
-        passedCounter++;
-        passCount.ReleaseMutex();
         AddReward(10);
     }
 
     private void FixedUpdate()
     {
-        timer += Time.deltaTime;
-    }
-
-    void WriteDataToFile()
-    {
-        int stops = Manager.Instance.StopCount;
-        float stopTime = Manager.Instance.StopTime;
-        string content = $"{timer}, {passedCounter}, {stops}, {stopTime}";
-        writer.WriteLine(content);
-        Debug.Log(content);
-        writer.Flush();
+        Manager.Instance.ep_time += Time.deltaTime;
     }
 }

@@ -1,23 +1,28 @@
 using System;
+using System.IO;
 using System.Threading;
 using UnityEngine;
 
 public class Manager : MonoBehaviour
 {
     public static Manager Instance;
-    public bool resetRequest;
     public int StopCount { get { return stopCount; } }
-    public float StopTime { get { return accummulatedStopTime; } }
+    public float ep_time;
 
-    private readonly Mutex crash = new Mutex();
+    private readonly Mutex crashHandleMutex = new Mutex();
     private readonly Mutex stopMutex = new Mutex();
     private readonly Mutex stopTimeMutex = new Mutex();
-    private bool carCrash = false;
+    private readonly Mutex passCountMutex = new Mutex();
+
+    private bool crashHandled;
     private int stopCount;
     private float accummulatedStopTime;
+    private int passedCount;
 
-    public static event Action ResetRequestChanged;
+    public static event Action CarCrashed;
     public static event Action PassedCounterChanged;
+
+    private StreamWriter writer;
 
     [SerializeField] Spawner spawner1;
     [SerializeField] Spawner spawner2;
@@ -26,26 +31,28 @@ public class Manager : MonoBehaviour
     void Awake()
     {
         Instance = this;
-        resetRequest = false;
-        carCrash = false;
+        crashHandled = false;
         stopCount = 0;
         accummulatedStopTime = 0;
+        passedCount = 0;
+
+        writer = new StreamWriter("data/data.csv", false);
     }
 
-    public void UpdateResetRequest(bool state)
+    public void CrashHandle()
     {
-        crash.WaitOne();
+        crashHandleMutex.WaitOne();
         
-        if (carCrash == false)
+        if (crashHandled == false)
         {
-            ResetRequestChanged?.Invoke();
-            carCrash = true;
+            CarCrashed?.Invoke();
+            crashHandled = true;
         }
         else
         {
-            carCrash = false;
+            crashHandled = false;
         }
-        crash.ReleaseMutex();
+        crashHandleMutex.ReleaseMutex();
     }
 
     public void ACarStopped()
@@ -68,25 +75,54 @@ public class Manager : MonoBehaviour
 
     public void UpdateCarPassed()
     {
+        passCountMutex.WaitOne();
+
+        passedCount++;
         PassedCounterChanged?.Invoke();
+
+        passCountMutex.ReleaseMutex();
     }
 
-    public void ClearScene()
+    private void ClearScene()
     {
+        spawner1.StopSpawning();
+        spawner2.StopSpawning();
+        spawner3.StopSpawning();
+
         var carObjects = GameObject.FindGameObjectsWithTag("car");
         foreach (var carObject in carObjects)
         {
+            accummulatedStopTime += carObject.GetComponent<Car>().StopTime;
             Destroy(carObject);
         }
     }
 
 
-    public void ResetEnvironment()
+    private void ResetEnvironment()
     {
         stopCount = 0;
         accummulatedStopTime = 0;
-        spawner1.RandomSpawn();
-        spawner2.RandomSpawn();
-        spawner3.RandomSpawn();
+        passedCount = 0;
+        crashHandled = false;
+        ep_time = 0;
+
+        spawner1.StartSpawning();
+        spawner2.StartSpawning();
+        spawner3.StartSpawning();
+    }
+
+    void WriteDataToFile()
+    {
+        string content = $"{ep_time}, {passedCount}, {stopCount}, {accummulatedStopTime}";
+        writer.WriteLine(content);
+        Debug.Log(content);
+        writer.Flush();
+    }
+
+    public void OnNewEpisode()
+    {
+        ClearScene();
+        WriteDataToFile();
+        ResetEnvironment();
     }
 }
