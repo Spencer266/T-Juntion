@@ -14,17 +14,17 @@ public class Spawner : MonoBehaviour
     IEnumerator SpawnObject()
     {
         yield return new WaitForSeconds(Random.Range(5, 10));
-        Instantiate(spawnObject, transform.position + transform.TransformDirection(Vector3.forward), transform.rotation);
+        int randomDistance = 8;
+        Instantiate(spawnObject, transform.position + transform.TransformDirection(Vector3.forward * randomDistance), transform.rotation);
         StartCoroutine(SpawnObject());
     }
 
-    public void RandomSpawn()
+    IEnumerator SpawnObject(int x)
     {
-        /*if (Random.Range(0, 1) == 0)
-            return;*/
-
-        int randomDistance = Random.Range(10, 20);
-        Instantiate(spawnObject, transform.position + transform.TransformDirection(Vector3.forward*randomDistance), transform.rotation);
+        yield return new WaitForSeconds(x);
+        int randomDistance = 11;
+        Instantiate(spawnObject, transform.position + transform.TransformDirection(Vector3.forward * randomDistance), transform.rotation);
+        StartCoroutine(SpawnObject());
     }
 
     public void StopSpawning()
@@ -34,6 +34,6 @@ public class Spawner : MonoBehaviour
 
     public void StartSpawning()
     {
-        StartCoroutine(SpawnObject());
+        StartCoroutine(SpawnObject(1));
     }
 }
