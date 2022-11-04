@@ -8,7 +8,7 @@ public class Spawner : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        StartCoroutine(SpawnObject());
+        StartSpawning();
     }
 
     IEnumerator SpawnObject()
@@ -23,8 +23,17 @@ public class Spawner : MonoBehaviour
         /*if (Random.Range(0, 1) == 0)
             return;*/
 
-        //int randomDistance = Random.Range(3, 20);
-        int randomDistance = 10;
+        int randomDistance = Random.Range(10, 20);
         Instantiate(spawnObject, transform.position + transform.TransformDirection(Vector3.forward*randomDistance), transform.rotation);
+    }
+
+    public void StopSpawning()
+    {
+        StopAllCoroutines();
+    }
+
+    public void StartSpawning()
+    {
+        StartCoroutine(SpawnObject());
     }
 }

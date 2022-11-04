@@ -1,24 +1,28 @@
 using System;
 using UnityEngine;
 using System.Threading;
+using System.IO;
 
 public class Manager : MonoBehaviour
 {
     public static Manager Instance;
     public bool resetRequest;
-    private bool crashHandled;
-    public int StopCount { get { return stopCount; } }
-    public float StopTime { get { return accummulatedStopTime; } }
+    public bool crashHandled;
 
     private readonly Mutex stopMutex = new Mutex();
+    private readonly Mutex passedMutex = new Mutex();
     private readonly Mutex stopTimeMutex = new Mutex();
     private readonly Mutex crashHandleMutex = new Mutex();
 
-    public static event Action Crashed;
     public static event Action ResetRequestChanged;
-    public static event Action PassedCounterChanged;
+
     private int stopCount;
     private float accummulatedStopTime;
+    private int passedCounter;
+    public float ep_time;
+
+    private StreamWriter writer;
+    private string filePath;
 
     [SerializeField] Spawner spawner1;
     [SerializeField] Spawner spawner2;
@@ -27,43 +31,37 @@ public class Manager : MonoBehaviour
     void Awake() 
     {
         Instance = this;
-        resetRequest = false;
         stopCount = 0;
+        ep_time = 0;
+        passedCounter = 0;
+        accummulatedStopTime = 0;
         crashHandled = false;
+
+        filePath = "data/rewards.csv";
+        writer = new StreamWriter(filePath, false);
     }
 
     public void UpdateResetRequest(bool state)
     {
-        /*if (!resetRequest == state)
-        {
-            if (state == false)
-            {
-                Crashed?.Invoke();
-            }
-            // !!! NOTE TO FIX: Potential bug might happend if ResetEnvironment() is called before
-            // functions triggered by Crashed are done.
-            ResetEnvironment();
-            resetRequest = false;
-            ResetRequestChanged?.Invoke();
-        }
-        else
-        {
-            resetRequest = true;
-        }*/
-
         if (state == false)
         {
             crashHandleMutex.WaitOne();
-
-            if (crashHandled == false)
-                Crashed?.Invoke();
-            else
+            if (crashHandled)
+            {
                 crashHandled = false;
-
+                return;
+            }
+            else
+            {
+                crashHandled = true;
+            }
             crashHandleMutex.ReleaseMutex();
         }
-        ResetEnvironment();
+        resetRequest = state;
+        ClearScene();
+        WriteDataToFile();
         ResetRequestChanged?.Invoke();
+        ResetEnvironment();
     }
 
     public void ACarStopped()
@@ -77,23 +75,32 @@ public class Manager : MonoBehaviour
 
     public void UpdateCarPassed()
     {
-        PassedCounterChanged?.Invoke();
+        passedMutex.WaitOne();
+
+        passedCounter++;
+
+        passedMutex.ReleaseMutex();
     }
 
-    public void AddStopTime(float amount)
+    public void AddStopTime(float stopTime)
     {
         stopTimeMutex.WaitOne();
 
-        accummulatedStopTime += amount;
+        accummulatedStopTime += stopTime;
 
         stopTimeMutex.ReleaseMutex();
     }
 
     public void ClearScene()
     {
+        spawner1.StopSpawning();
+        spawner2.StopSpawning();
+        spawner3.StopSpawning();
+
         var carObjects = GameObject.FindGameObjectsWithTag("car");
         foreach (var carObject in carObjects)
         {
+            accummulatedStopTime += carObject.GetComponent<Car>().StopTime;
             Destroy(carObject);
         }
     }
@@ -102,8 +109,19 @@ public class Manager : MonoBehaviour
     {
         accummulatedStopTime = 0;
         stopCount = 0;
-        spawner1.RandomSpawn();
-        spawner2.RandomSpawn();
-        spawner3.RandomSpawn();
+        passedCounter = 0;
+        ep_time = 0;
+
+        spawner1.StartSpawning();
+        spawner2.StartSpawning();
+        spawner3.StartSpawning();
+    }
+
+    void WriteDataToFile()
+    {
+        string content = $"{ep_time} , {passedCounter} , {stopCount} , {accummulatedStopTime}";
+        writer.WriteLine(content);
+        Debug.Log(content);
+        writer.Flush();
     }
 }

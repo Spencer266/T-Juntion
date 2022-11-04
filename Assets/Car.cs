@@ -42,6 +42,7 @@ public class Car : MonoBehaviour
     private bool obstacleInfront = false;
     private float running = 0;
     private float stopTime = 0;
+    public float StopTime { get { return stopTime; } }
 
     void GoForward()
     {
@@ -124,7 +125,10 @@ public class Car : MonoBehaviour
         }
 
         if (collision.gameObject.CompareTag("destroyer"))
+        {
+            Manager.Instance.AddStopTime(stopTime);
             Destroy(gameObject);
+        }
     }
 
     private bool LookFront()
@@ -196,10 +200,5 @@ public class Car : MonoBehaviour
         }
         running += Time.deltaTime;
         // Logging
-    }
-
-    private void OnDestroy()
-    {
-        Manager.Instance.AddStopTime(stopTime);
     }
 }
